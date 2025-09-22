@@ -18,13 +18,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         guard let windowScene = (scene as? UIWindowScene) else { return }
         let window = UIWindow(windowScene: windowScene)
+        window.backgroundColor = Colors.white
         
         if Auth.auth().currentUser == nil {
             let splashVC = SplashViewController()
             let navController = UINavigationController(rootViewController: splashVC)
             window.rootViewController = navController
         } else {
-            window.rootViewController = HomeViewController()
+            window.rootViewController = TabBarController()
         }
         
         window.makeKeyAndVisible()
