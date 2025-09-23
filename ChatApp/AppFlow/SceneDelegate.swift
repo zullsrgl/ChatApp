@@ -21,8 +21,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window.backgroundColor = Colors.white
         
         if Auth.auth().currentUser == nil {
-            let splashVC = SplashViewController()
-            let navController = UINavigationController(rootViewController: splashVC)
+            let animationVC = AnimationViewController()
+            animationVC.source = .launch
+            let navController = UINavigationController(rootViewController: animationVC)
             window.rootViewController = navController
         } else {
             window.rootViewController = TabBarController()

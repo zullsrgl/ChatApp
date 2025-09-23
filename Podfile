@@ -7,4 +7,5 @@ target 'ChatApp' do
   pod 'PureLayout'
   pod 'lottie-ios'
   pod 'Firebase/Auth'
+  pod 'Firebase/Firestore'
 end

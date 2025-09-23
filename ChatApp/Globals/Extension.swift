@@ -5,6 +5,7 @@
 //  Created by Zülal Sarıoğlu on 12.09.2025.
 //
 import UIKit
+import Lottie
 
 extension UIViewController{
     
@@ -35,4 +36,22 @@ extension UIViewController{
               errorLabel.removeFromSuperview()
           }
       }
+    
+    func showAnimation(with animation: String, duration: Double) {
+        let animationView = LottieAnimationView(name: animation)
+        animationView.frame = view.bounds
+        animationView.contentMode = .scaleAspectFit
+        animationView.loopMode = .loop 
+        view.addSubview(animationView)
+        animationView.play()
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + duration) {
+            let logInVC = LoginViewController()
+            self.navigationController?.setViewControllers([logInVC], animated: false)
+        }
+    }
+}
+
+extension Notification.Name {
+    static let emailVerificationSent = Notification.Name("emailVerificationSent")
 }

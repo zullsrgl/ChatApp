@@ -7,35 +7,75 @@
 
 import Foundation
 import FirebaseAuth
+import FirebaseFirestore
+import Lottie
 
 class AuthManager {
     static let shared = AuthManager()
     private let auth = Auth.auth()
     private var verificationId: String?
     
-    func startAuth(phoneNumber: String, compleation: @escaping(Bool) -> Void){
-        PhoneAuthProvider.provider().verifyPhoneNumber(phoneNumber, uiDelegate: nil) { [weak self] verificationId, error in
-            guard let verificationId = verificationId, error == nil else {
-                compleation(false)
-                return
+    func createUser(email: String, password: String, phoneNumber: String, name: String){
+        auth.createUser(withEmail: email, password: password){ authResult, error in
+            if let error = error {
+                print("record error: \(error.localizedDescription)")
             }
-            self?.verificationId = verificationId
-            compleation(true)
+            guard let user = authResult?.user else { return }
+            
+            let db = Firestore.firestore()
+            
+            db.collection("user").document(user.uid).setData([
+                "name": name,
+                "phone": phoneNumber,
+                "email": email,
+                "uid": user.uid
+            ]){ error in
+                if let error = error {
+                    print("Firestore record error: \(error.localizedDescription)")
+                } else {
+                    print("user successfully saved")
+                }
+            }
+            
+            user.sendEmailVerification { error in
+                if let error = error {
+                    print("verification e-mail not sent: \(error.localizedDescription)")
+                } else {
+                    print("check your email")
+                    NotificationCenter.default.post(name: .emailVerificationSent, object: nil)
+                }
+            }
         }
     }
     
-    func verifyCode(smsCode: String, compleation: @escaping(Bool) -> Void){
-        guard let verificationId = verificationId else {
-            compleation(false)
-            return
-        }
-        let credential = PhoneAuthProvider.provider().credential(withVerificationID: verificationId, verificationCode: smsCode)
-        auth.signIn(with: credential){ result, error in
-            guard result != nil, error == nil else {
-                compleation(false)
+    func checkEmailExists(email: String, completion: @escaping (Bool) -> Void){
+        let db = Firestore.firestore()
+        db.collection("user").whereField("email", isEqualTo: email).getDocuments { snapshot, error in
+            if let error = error {
+                print("Firestore error: \(error)")
+                completion(false)
                 return
             }
-            compleation(true)
+            
+            completion(!(snapshot?.documents.isEmpty ?? true))
+        }
+    }
+    
+    func loginUser(email: String, password: String, completion: @escaping (Bool) -> Void) {
+        auth.signIn(withEmail: email, password: password) { authResult, error in
+            if let error = error {
+                print("Login error: \(error.localizedDescription)")
+                completion(false)
+                return
+            }
+            
+            if let user = authResult?.user, user.isEmailVerified {
+                print("✅ Login başarılı")
+                completion(true)
+            } else {
+                print("⚠️ Email doğrulanmamış")
+                completion(false)
+            }
         }
     }
 }
