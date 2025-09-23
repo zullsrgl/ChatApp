@@ -7,11 +7,10 @@
 
 import PureLayout
 
-class LoginViewController: UIViewController, LoginViewModelDelegate{
-  
-    
+class LoginViewController: UIViewController{
     
     private lazy var viewModel = LoginViewModel()
+    private var bottomConstraint: NSLayoutConstraint?
     
     private let chatBoxImage: UIImageView = {
         var image = UIImageView()
@@ -47,6 +46,7 @@ class LoginViewController: UIViewController, LoginViewModelDelegate{
         txt.layer.borderWidth = 1
         txt.layer.borderColor = Colors.gray.cgColor
         txt.placeholder = "E-mail"
+        txt.keyboardType = .emailAddress
         return txt
     }()
     
@@ -57,7 +57,7 @@ class LoginViewController: UIViewController, LoginViewModelDelegate{
         txt.layer.cornerRadius = 12
         txt.layer.borderWidth = 1
         txt.layer.borderColor = Colors.gray.cgColor
-        txt.keyboardType = .phonePad
+        txt.keyboardType = .namePhonePad
         txt.placeholder = "Password"
         return txt
     }()
@@ -91,47 +91,52 @@ class LoginViewController: UIViewController, LoginViewModelDelegate{
         view.backgroundColor = Colors.white
         viewModel.delegate = self
         
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+        
         setUpUI()
     }
     
     private func setUpUI(){
-        view.addSubview(chatBoxImage)
-        chatBoxImage.autoSetDimension(.width, toSize: UIScreen.main.bounds.width)
-        chatBoxImage.autoSetDimension(.height, toSize: 200)
-        chatBoxImage.autoPinEdge(.top, to: .top, of: view, withOffset: 200)
-        
-        view.addSubview(numberLabel)
-        numberLabel.autoAlignAxis(toSuperviewAxis: .horizontal)
-        numberLabel.autoAlignAxis(toSuperviewAxis: .vertical)
-        
-        view.addSubview(explanationLabel)
-        explanationLabel.autoPinEdge(.left, to: .left, of: view, withOffset: 20)
-        explanationLabel.autoPinEdge(.right, to: .right, of: view, withOffset: -20)
-        explanationLabel.autoPinEdge(.top, to: .bottom, of: numberLabel, withOffset: 12)
-        
-        view.addSubview(emailTextField)
-        emailTextField.autoPinEdge(.left, to: .left, of: view, withOffset: 40)
-        emailTextField.autoPinEdge(.right, to: .right, of: view, withOffset: -40)
-        emailTextField.autoSetDimension(.height, toSize: 40)
-        emailTextField.autoPinEdge(.top, to: .bottom, of: explanationLabel, withOffset: 24)
-        
-        view.addSubview(passwordTextField)
-        passwordTextField.autoPinEdge(.left, to: .left, of: view, withOffset: 40)
-        passwordTextField.autoPinEdge(.right, to: .right, of: view, withOffset: -40)
-        passwordTextField.autoSetDimension(.height, toSize: 40)
-        passwordTextField.autoPinEdge(.top, to: .bottom, of: emailTextField, withOffset: 24)
-        
         view.addSubview(registerButton)
         registerButton.autoPinEdge(.left, to: .left, of: view, withOffset: 20)
         registerButton.autoPinEdge(.right, to: .right, of: view, withOffset: -20)
-        registerButton.autoPinEdge(.bottom, to: .bottom, of: view, withOffset: -40)
         registerButton.autoSetDimension(.height, toSize: 40)
+        bottomConstraint = registerButton.autoPinEdge(toSuperviewEdge: .bottom, withInset: 16)
         
         view.addSubview(logInButton)
         logInButton.autoPinEdge(.left, to: .left, of: view, withOffset: 20)
         logInButton.autoPinEdge(.right, to: .right, of: view, withOffset: -20)
-        logInButton.autoPinEdge(.bottom, to: .top, of: registerButton, withOffset: -20)
+        logInButton.autoPinEdge(.bottom, to: .top, of: registerButton, withOffset: -16)
         logInButton.autoSetDimension(.height, toSize: 40)
+        
+        view.addSubview(passwordTextField)
+        passwordTextField.autoPinEdge(.left, to: .left, of: view, withOffset: 20)
+        passwordTextField.autoPinEdge(.right, to: .right, of: view, withOffset: -20)
+        passwordTextField.autoSetDimension(.height, toSize: 40)
+        passwordTextField.autoPinEdge(.bottom, to: .top, of: logInButton, withOffset: -200)
+        
+        view.addSubview(emailTextField)
+        emailTextField.autoPinEdge(.left, to: .left, of: view, withOffset: 20)
+        emailTextField.autoPinEdge(.right, to: .right, of: view, withOffset: -20)
+        emailTextField.autoSetDimension(.height, toSize: 40)
+        emailTextField.autoPinEdge(.bottom, to: .top, of: passwordTextField, withOffset: -16)
+        
+        view.addSubview(explanationLabel)
+        explanationLabel.autoPinEdge(.left, to: .left, of: view, withOffset: 20)
+        explanationLabel.autoPinEdge(.right, to: .right, of: view, withOffset: -20)
+        explanationLabel.autoPinEdge(.bottom, to: .top, of: emailTextField, withOffset: -8)
+        
+        view.addSubview(numberLabel)
+        numberLabel.autoAlignAxis(toSuperviewAxis: .vertical)
+        numberLabel.autoPinEdge(.bottom, to: .top, of: explanationLabel, withOffset: -8)
+        
+        view.addSubview(chatBoxImage)
+        chatBoxImage.autoSetDimension(.width, toSize: UIScreen.main.bounds.width)
+        chatBoxImage.autoSetDimension(.height, toSize: 200)
+        chatBoxImage.autoPinEdge(.bottom, to: .top, of: numberLabel, withOffset: 8)
+        
+       
     }
     
     @objc func logInButtonClicked(){
@@ -146,6 +151,43 @@ class LoginViewController: UIViewController, LoginViewModelDelegate{
         viewModel.getUser(email: email, password: password)
     }
     
+    
+    @objc private func registerButtonClicked(){
+        navigationController?.pushViewController(RegisterViewController(), animated: true)
+    }
+    
+    @objc private func keyboardWillShow(notification: Notification) {
+        guard let userInfo = notification.userInfo,
+              let frame = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
+        let duration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double else {return}
+        
+        let keyboardHeight = frame.height
+        
+        bottomConstraint?.constant = -(keyboardHeight + 16)
+        
+        UIView.animate(withDuration: duration) {
+            self.view.layoutIfNeeded()
+        }
+        
+    }
+    
+    @objc private func keyboardWillHide(notification: Notification) {
+        guard let userInfo = notification.userInfo,
+              let duration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double else { return }
+        
+        bottomConstraint?.constant = -16
+        
+        UIView.animate(withDuration: duration) {
+            self.view.layoutIfNeeded()
+        }
+    }
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        self.view.endEditing(false)
+    }
+}
+
+extension LoginViewController: LoginViewModelDelegate{
     func didCheckEmail(exists: Bool) {
         if exists {
             navigationController?.pushViewController(HomeViewController(), animated: true)
@@ -154,12 +196,7 @@ class LoginViewController: UIViewController, LoginViewModelDelegate{
         }
     }
     
-    @objc func registerButtonClicked(){
-        navigationController?.pushViewController(RegisterViewController(), animated: true)
-    }
-    
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        self.view.endEditing(false)
+    func loginFailed(errorMessage: String) {
+        self.showError(message: errorMessage)
     }
 }
-

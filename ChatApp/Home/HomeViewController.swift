@@ -14,9 +14,12 @@ class HomeViewController: UIViewController {
         view.backgroundColor = Colors.white
         title = "Chats"
         
+        navigationItem.hidesBackButton = true
+        self.navigationController?.interactivePopGestureRecognizer?.isEnabled = false
+        
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "square.and.pencil"), style: .plain, target: self, action: #selector(newMessageButton))
         navigationItem.rightBarButtonItem?.tintColor = Colors.primary
-        navigationItem.leftBarButtonItem = nil
+       
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationItem.largeTitleDisplayMode = .automatic
         

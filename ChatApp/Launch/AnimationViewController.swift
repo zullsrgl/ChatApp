@@ -42,7 +42,7 @@ class AnimationViewController: UIViewController {
         if let source = source {
             switch source {
             case .launch:
-                self.showAnimation(with: "chat", duration: 10)
+                self.showAnimation(with: "chat", duration: 5)
             case .register:
                 self.showAnimation(with: "email", duration: 30)
                 configureUI()

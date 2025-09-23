@@ -61,20 +61,18 @@ class AuthManager {
         }
     }
     
-    func loginUser(email: String, password: String, completion: @escaping (Bool) -> Void) {
+    func loginUser(email: String, password: String, completion: @escaping (Bool, String?) -> Void) {
         auth.signIn(withEmail: email, password: password) { authResult, error in
             if let error = error {
                 print("Login error: \(error.localizedDescription)")
-                completion(false)
+                completion(false, error.localizedDescription)
                 return
             }
             
             if let user = authResult?.user, user.isEmailVerified {
-                print("✅ Login başarılı")
-                completion(true)
+                completion(true, nil)
             } else {
-                print("⚠️ Email doğrulanmamış")
-                completion(false)
+                completion(false, "email not verified")
             }
         }
     }
