@@ -51,6 +51,14 @@ extension UIViewController{
             self.navigationController?.setViewControllers([logInVC], animated: false)
         }
     }
+    
+    func showAlertActiob(message: String){
+        let alert = UIAlertController(title: "Warning", message: message, preferredStyle: .alert)
+        let cancelAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
+        alert.addAction(cancelAction)
+        present(alert, animated: true)
+        
+    }
 }
 
 extension Notification.Name {

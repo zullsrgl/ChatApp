@@ -44,7 +44,7 @@ class AnimationViewController: UIViewController {
             case .launch:
                 self.showAnimation(with: "chat", duration: 5)
             case .register:
-                self.showAnimation(with: "email", duration: 30)
+                self.showAnimation(with: "email", duration: 5)
                 configureUI()
             }
         }

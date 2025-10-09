@@ -11,6 +11,7 @@ class LoginViewController: UIViewController{
     
     private lazy var viewModel = LoginViewModel()
     private var bottomConstraint: NSLayoutConstraint?
+    var showPassword: Bool = false
     
     private let chatBoxImage: UIImageView = {
         var image = UIImageView()
@@ -23,7 +24,7 @@ class LoginViewController: UIViewController{
     private let numberLabel: UILabel = {
         var lbl = UILabel()
         lbl.font = AppFont.regular.font(size: 20)
-        lbl.text = "welcome back"
+        lbl.text = "welcome"
         lbl.textAlignment = .center
         lbl.textColor = Colors.darko
         return lbl
@@ -57,9 +58,21 @@ class LoginViewController: UIViewController{
         txt.layer.cornerRadius = 12
         txt.layer.borderWidth = 1
         txt.layer.borderColor = Colors.gray.cgColor
-        txt.keyboardType = .namePhonePad
-        txt.placeholder = "Password"
+        txt.placeholder = "password"
+        txt.isSecureTextEntry = true
+        txt.keyboardType = .phonePad
         return txt
+    }()
+    
+    private var eyeIconButton: UIButton = {
+        var btn = UIButton()
+        btn.setImage(UIImage(systemName: "eye"), for: .normal)
+        btn.isEnabled = true
+        btn.clipsToBounds = true
+        btn.tintColor = Colors.secondary
+        btn.isUserInteractionEnabled = true
+        btn.addTarget(self, action: #selector(toggaleEye), for: .touchUpInside)
+        return btn
     }()
     
     private let logInButton: UIButton = {
@@ -115,6 +128,8 @@ class LoginViewController: UIViewController{
         passwordTextField.autoPinEdge(.right, to: .right, of: view, withOffset: -20)
         passwordTextField.autoSetDimension(.height, toSize: 40)
         passwordTextField.autoPinEdge(.bottom, to: .top, of: logInButton, withOffset: -200)
+        passwordTextField.rightView = eyeIconButton
+        passwordTextField.rightViewMode = .always
         
         view.addSubview(emailTextField)
         emailTextField.autoPinEdge(.left, to: .left, of: view, withOffset: 20)
@@ -156,6 +171,14 @@ class LoginViewController: UIViewController{
         navigationController?.pushViewController(RegisterViewController(), animated: true)
     }
     
+    @objc func toggaleEye(){
+        showPassword.toggle()
+        let iconName = showPassword ? "eye.slash": "eye"
+        passwordTextField.isSecureTextEntry = !showPassword
+        eyeIconButton.setImage(UIImage(systemName: iconName), for: .normal)
+        
+    }
+    
     @objc private func keyboardWillShow(notification: Notification) {
         guard let userInfo = notification.userInfo,
               let frame = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
@@ -190,9 +213,12 @@ class LoginViewController: UIViewController{
 extension LoginViewController: LoginViewModelDelegate{
     func didCheckEmail(exists: Bool) {
         if exists {
-            navigationController?.pushViewController(HomeViewController(), animated: true)
-        }else {
-            self.showError(message: "login process failed")
+            let vc = TabBarController()
+            vc.modalPresentationStyle = .fullScreen
+            self.present(vc, animated: true)
+
+        } else {
+            self.showAlertActiob(message: "Email adress not verifiyed please check your email")
         }
     }
     

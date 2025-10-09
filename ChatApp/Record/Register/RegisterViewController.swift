@@ -10,6 +10,7 @@ import PureLayout
 class RegisterViewController: UIViewController {
     
     lazy var viewModel = RegisterViewModel()
+    var showPassword: Bool = false
     
     private lazy var profileButton: UIButton = {
         var btn = UIButton()
@@ -54,6 +55,7 @@ class RegisterViewController: UIViewController {
         txt.layer.borderWidth = 1
         txt.layer.borderColor = Colors.gray.cgColor
         txt.placeholder = "Email"
+        txt.keyboardType = .emailAddress
         return txt
     }()
     
@@ -65,8 +67,20 @@ class RegisterViewController: UIViewController {
         txt.layer.borderWidth = 1
         txt.layer.borderColor = Colors.gray.cgColor
         txt.placeholder = "password"
+        txt.isSecureTextEntry = true
         txt.keyboardType = .phonePad
         return txt
+    }()
+    
+    private var eyeIconButton: UIButton = {
+        var btn = UIButton()
+        btn.setImage(UIImage(systemName: "eye"), for: .normal)
+        btn.isEnabled = true
+        btn.clipsToBounds = true
+        btn.tintColor = Colors.secondary
+        btn.isUserInteractionEnabled = true
+        btn.addTarget(self, action: #selector(toggaleEye), for: .touchUpInside)
+        return btn
     }()
     
     private var phoneTextField: UITextField = {
@@ -126,6 +140,9 @@ class RegisterViewController: UIViewController {
         passwordTextField.autoPinEdge(.right, to: .right, of: view, withOffset: -20)
         passwordTextField.autoSetDimension(.height, toSize: 40)
         
+        passwordTextField.rightView = eyeIconButton
+        passwordTextField.rightViewMode = .always
+        
         view.addSubview(phoneTextField)
         phoneTextField.autoPinEdge(.top, to: .bottom, of: passwordTextField, withOffset: 24)
         phoneTextField.autoPinEdge(.left, to: .left, of: view, withOffset: 20)
@@ -162,17 +179,26 @@ class RegisterViewController: UIViewController {
         guard let emailText = emailTextField.text, !emailText.isEmpty,
               let nameText = nameTextField.text, !nameText.isEmpty,
               let passwordText = passwordTextField.text, !passwordText.isEmpty,
-              let phoneNumber = phoneTextField.text, !phoneNumber.isEmpty else {
+              let phoneNumber = phoneTextField.text, !phoneNumber.isEmpty, let image = profileButton.imageView?.image
+        else {
             self.showError(message: "Please enter your information")
             return
         }
         viewModel.createUser(email: emailText, password: passwordText, phoneNumber: phoneNumber, name: nameText)
+        viewModel.uploadImage(image: image, userId: "1")
     }
     
     @objc func showEmailAnimation(){
         let vc = AnimationViewController()
         vc.source = .register
         navigationController?.pushViewController(vc, animated: true)
+    }
+    @objc func toggaleEye(){
+        showPassword.toggle()
+        let iconName = showPassword ? "eye.slash": "eye"
+        passwordTextField.isSecureTextEntry = !showPassword
+        eyeIconButton.setImage(UIImage(systemName: iconName), for: .normal)
+        
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {

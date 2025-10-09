@@ -2,7 +2,7 @@
 //  AuthManager.swift
 //  ChatApp
 //
-//  Created by Zülal Sarıoğlu on 14.09.2025.
+//  Created by Zülal Sarıoğlu on 8.10.2025.
 //
 
 import Foundation
@@ -45,6 +45,7 @@ class AuthManager {
                     NotificationCenter.default.post(name: .emailVerificationSent, object: nil)
                 }
             }
+            
         }
     }
     
@@ -60,20 +61,21 @@ class AuthManager {
             completion(!(snapshot?.documents.isEmpty ?? true))
         }
     }
-    
-    func loginUser(email: String, password: String, completion: @escaping (Bool, String?) -> Void) {
+    func loginUser(email: String, password: String, completion: @escaping (Bool) -> Void) {
         auth.signIn(withEmail: email, password: password) { authResult, error in
             if let error = error {
                 print("Login error: \(error.localizedDescription)")
-                completion(false, error.localizedDescription)
+                completion(false)
                 return
             }
-            
             if let user = authResult?.user, user.isEmailVerified {
-                completion(true, nil)
+                print("Login is succes")
+                completion(true)
             } else {
-                completion(false, "email not verified")
+                print("email not verified")
+                completion(false)
             }
         }
     }
+    
 }

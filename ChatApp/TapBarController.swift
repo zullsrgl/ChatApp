@@ -36,6 +36,6 @@ class TabBarController: UITabBarController {
         
         let homeNav = UINavigationController(rootViewController: homeVC)
         let settingsNav = UINavigationController(rootViewController: settingsVC)
-        viewControllers = [homeNav,settingsVC]
+        viewControllers = [homeNav,settingsNav]
     }
 }
