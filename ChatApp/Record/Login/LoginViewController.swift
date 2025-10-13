@@ -11,56 +11,75 @@ class LoginViewController: UIViewController{
     
     private lazy var viewModel = LoginViewModel()
     private var bottomConstraint: NSLayoutConstraint?
-    var showPassword: Bool = false
+    private var showPassword: Bool = false
+    
+    
+    private let stackContainerView: UIStackView = {
+        let stackView = UIStackView()
+        stackView.axis = .vertical
+        stackView.alignment = .fill
+        stackView.distribution = .fill
+        stackView.spacing = 12
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.layoutMargins = UIEdgeInsets(top: 0, left: 20, bottom: 300, right: 20)
+        stackView.isLayoutMarginsRelativeArrangement = true
+        stackView.backgroundColor = .clear
+        return stackView
+    }()
+    
     
     private let chatBoxImage: UIImageView = {
         var image = UIImageView()
         image.image = UIImage(named: "chatbox-icon")
         image.contentMode = .scaleAspectFit
         image.translatesAutoresizingMaskIntoConstraints = false
+        image.layer.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 200)
         return image
     }()
     
-    private let numberLabel: UILabel = {
+    private let appNameLabel: UILabel = {
         var lbl = UILabel()
-        lbl.font = AppFont.regular.font(size: 20)
-        lbl.text = "welcome"
+        lbl.font = AppFont.bold.font(size: 32)
+        lbl.text = "Chatting"
         lbl.textAlignment = .center
-        lbl.textColor = Colors.darko
+        lbl.textColor = Colors.secondary
         return lbl
     }()
     
     private let explanationLabel: UILabel = {
         var lbl = UILabel()
-        lbl.font = AppFont.regular.font(size: 12)
-        lbl.text = "Please enter your information"
+        lbl.font = AppFont.regular.font(size: 18)
+        lbl.text = "Welcome to Chatting, enter your information."
         lbl.textAlignment = .center
         lbl.textColor = Colors.gray
+        lbl.numberOfLines = 0
         return lbl
     }()
     
-    private var emailTextField: UITextField = {
-        var txt = UITextField()
+    private var emailTextField: PaddingTextField = {
+        var txt = PaddingTextField()
         txt.textColor = Colors.darko
         txt.font = AppFont.regular.font(size: 16)
-        txt.layer.cornerRadius = 12
+        txt.layer.cornerRadius = 20
         txt.layer.borderWidth = 1
         txt.layer.borderColor = Colors.gray.cgColor
         txt.placeholder = "E-mail"
+        txt.autocapitalizationType = .none
+        txt.autocorrectionType = .no
         txt.keyboardType = .emailAddress
         return txt
     }()
     
-    private var passwordTextField: UITextField = {
-        var txt = UITextField()
+    private var passwordTextField: PaddingTextField = {
+        var txt = PaddingTextField()
         txt.textColor = Colors.darko
         txt.font = AppFont.regular.font(size: 16)
-        txt.layer.cornerRadius = 12
+        txt.layer.cornerRadius = 20
         txt.layer.borderWidth = 1
         txt.layer.borderColor = Colors.gray.cgColor
-        txt.placeholder = "password"
+        txt.placeholder = "Password"
         txt.isSecureTextEntry = true
-        txt.keyboardType = .phonePad
+        txt.keyboardType = .default
         return txt
     }()
     
@@ -79,8 +98,8 @@ class LoginViewController: UIViewController{
         var btn = UIButton()
         btn.setTitle("Log In", for: .normal)
         btn.backgroundColor = Colors.primary
-        btn.setTitleColor(Colors.darko, for: .normal)
-        btn.layer.cornerRadius = 12
+        btn.setTitleColor(Colors.white, for: .normal)
+        btn.layer.cornerRadius = 20
         btn.titleLabel?.textColor = Colors.white
         btn.addTarget(self, action: #selector(logInButtonClicked), for: .touchUpInside)
         return btn
@@ -88,12 +107,29 @@ class LoginViewController: UIViewController{
     
     private let registerButton: UIButton = {
         var btn = UIButton()
-        btn.setTitle("Register", for: .normal)
-        btn.backgroundColor = Colors.primary
-        btn.setTitleColor(Colors.darko, for: .normal)
-        btn.layer.cornerRadius = 12
-        btn.titleLabel?.textColor = Colors.white
-        btn.addTarget(self, action: #selector(registerButtonClicked), for: .touchUpInside)
+        
+        let fullText = NSMutableAttributedString(string: "Don't you have an account?/",attributes: [
+            .foregroundColor: Colors.darko,
+            .font: AppFont.regular.font(size: 16)])
+        
+        fullText.append(NSAttributedString(string: " Sign Up", attributes: [
+            .foregroundColor: Colors.secondary,
+            .font: AppFont.bold.font(size: 16)]))
+        
+        btn.setAttributedTitle(fullText, for: .normal)
+        btn.addTarget(self, action: #selector(signUpTapped), for: .touchUpInside)
+        return btn
+    }()
+    
+    private let resetPassword: UIButton = {
+        var btn = UIButton()
+        
+        let fullText = NSMutableAttributedString(string: "I forgot my password",attributes: [
+            .foregroundColor: Colors.secondary,
+            .font: AppFont.bold.font(size: 16)])
+        
+        btn.setAttributedTitle(fullText, for: .normal)
+        btn.addTarget(self, action: #selector(resetPasswordTapped), for: .touchUpInside)
         return btn
     }()
     
@@ -111,47 +147,37 @@ class LoginViewController: UIViewController{
     }
     
     private func setUpUI(){
-        view.addSubview(registerButton)
-        registerButton.autoPinEdge(.left, to: .left, of: view, withOffset: 20)
-        registerButton.autoPinEdge(.right, to: .right, of: view, withOffset: -20)
-        registerButton.autoSetDimension(.height, toSize: 40)
-        bottomConstraint = registerButton.autoPinEdge(toSuperviewEdge: .bottom, withInset: 16)
         
-        view.addSubview(logInButton)
-        logInButton.autoPinEdge(.left, to: .left, of: view, withOffset: 20)
-        logInButton.autoPinEdge(.right, to: .right, of: view, withOffset: -20)
-        logInButton.autoPinEdge(.bottom, to: .top, of: registerButton, withOffset: -16)
-        logInButton.autoSetDimension(.height, toSize: 40)
+        view.addSubview(stackContainerView)
+        stackContainerView.autoPinEdgesToSuperviewEdges()
         
-        view.addSubview(passwordTextField)
-        passwordTextField.autoPinEdge(.left, to: .left, of: view, withOffset: 20)
-        passwordTextField.autoPinEdge(.right, to: .right, of: view, withOffset: -20)
+        stackContainerView.addArrangedSubview(appNameLabel)
+        appNameLabel.autoSetDimension(.height, toSize: 40)
+        
+        stackContainerView.addArrangedSubview(chatBoxImage)
+        
+        stackContainerView.addArrangedSubview(explanationLabel)
+        explanationLabel.autoSetDimension(.height, toSize: 60)
+        
+        stackContainerView.addArrangedSubview(emailTextField)
+        emailTextField.autoSetDimension(.height, toSize: 40)
+        
+        stackContainerView.addArrangedSubview(passwordTextField)
         passwordTextField.autoSetDimension(.height, toSize: 40)
-        passwordTextField.autoPinEdge(.bottom, to: .top, of: logInButton, withOffset: -200)
         passwordTextField.rightView = eyeIconButton
         passwordTextField.rightViewMode = .always
         
-        view.addSubview(emailTextField)
-        emailTextField.autoPinEdge(.left, to: .left, of: view, withOffset: 20)
-        emailTextField.autoPinEdge(.right, to: .right, of: view, withOffset: -20)
-        emailTextField.autoSetDimension(.height, toSize: 40)
-        emailTextField.autoPinEdge(.bottom, to: .top, of: passwordTextField, withOffset: -16)
+        stackContainerView.addArrangedSubview(logInButton)
+        logInButton.autoSetDimension(.height, toSize: 40)
         
-        view.addSubview(explanationLabel)
-        explanationLabel.autoPinEdge(.left, to: .left, of: view, withOffset: 20)
-        explanationLabel.autoPinEdge(.right, to: .right, of: view, withOffset: -20)
-        explanationLabel.autoPinEdge(.bottom, to: .top, of: emailTextField, withOffset: -8)
+        stackContainerView.addArrangedSubview(registerButton)
+        registerButton.autoSetDimension(.height, toSize: 40)
         
-        view.addSubview(numberLabel)
-        numberLabel.autoAlignAxis(toSuperviewAxis: .vertical)
-        numberLabel.autoPinEdge(.bottom, to: .top, of: explanationLabel, withOffset: -8)
+        stackContainerView.addArrangedSubview(resetPassword)
+        resetPassword.autoSetDimension(.height, toSize: 20)
         
-        view.addSubview(chatBoxImage)
-        chatBoxImage.autoSetDimension(.width, toSize: UIScreen.main.bounds.width)
-        chatBoxImage.autoSetDimension(.height, toSize: 200)
-        chatBoxImage.autoPinEdge(.bottom, to: .top, of: numberLabel, withOffset: 8)
+        bottomConstraint = stackContainerView.autoPinEdge(.bottom, to: .bottom, of: view)
         
-       
     }
     
     @objc func logInButtonClicked(){
@@ -167,8 +193,14 @@ class LoginViewController: UIViewController{
     }
     
     
-    @objc private func registerButtonClicked(){
+    @objc private func signUpTapped(){
         navigationController?.pushViewController(RegisterViewController(), animated: true)
+    }
+    
+    @objc private func resetPasswordTapped(){
+        self.showTextFieldAlert(title: "I forgot my password", message: "Enter your email address", placheHolderText: "e-mail") { txt in
+            self.viewModel.resetPassword(email: txt)
+        }
     }
     
     @objc func toggaleEye(){
@@ -181,24 +213,21 @@ class LoginViewController: UIViewController{
     
     @objc private func keyboardWillShow(notification: Notification) {
         guard let userInfo = notification.userInfo,
-              let frame = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
-        let duration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double else {return}
+              let duration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double else {return}
         
-        let keyboardHeight = frame.height
         
-        bottomConstraint?.constant = -(keyboardHeight + 16)
+        bottomConstraint?.constant = -16
         
         UIView.animate(withDuration: duration) {
             self.view.layoutIfNeeded()
         }
-        
     }
     
     @objc private func keyboardWillHide(notification: Notification) {
         guard let userInfo = notification.userInfo,
               let duration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double else { return }
         
-        bottomConstraint?.constant = -16
+        bottomConstraint?.constant = 300
         
         UIView.animate(withDuration: duration) {
             self.view.layoutIfNeeded()
@@ -211,14 +240,18 @@ class LoginViewController: UIViewController{
 }
 
 extension LoginViewController: LoginViewModelDelegate{
-    func didCheckEmail(exists: Bool) {
+    func passwordResetDidFinish(message: String) {
+        self.showAlertActiob(message: message)
+    }
+    
+    func didCheckEmail(exists: Bool, message: String) {
         if exists {
             let vc = TabBarController()
             vc.modalPresentationStyle = .fullScreen
             self.present(vc, animated: true)
-
+            
         } else {
-            self.showAlertActiob(message: "Email adress not verifiyed please check your email")
+            self.showAlertActiob(message: message)
         }
     }
     

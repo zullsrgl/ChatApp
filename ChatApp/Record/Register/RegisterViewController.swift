@@ -10,14 +10,17 @@ import PureLayout
 class RegisterViewController: UIViewController {
     
     lazy var viewModel = RegisterViewModel()
-    var showPassword: Bool = false
+    private var showPassword: Bool = false
     
     private lazy var profileButton: UIButton = {
         var btn = UIButton()
-        btn.setImage(UIImage(named: "chooseimage-icon"), for: .normal)
+        btn.setImage(UIImage(systemName: "photo.circle.fill"), for: .normal)
         btn.imageView?.contentMode = .scaleAspectFit
         btn.contentHorizontalAlignment = .fill
         btn.contentVerticalAlignment = .fill
+        btn.layer.borderColor = Colors.primary.cgColor
+        btn.layer.borderWidth = 1
+        btn.layer.cornerRadius =  50
         btn.layer.masksToBounds = true
         btn.tintColor = Colors.primary
         let camera = UIAction(title: "Camera", image: UIImage(systemName: "camera")) { [weak self] _ in
@@ -36,39 +39,41 @@ class RegisterViewController: UIViewController {
         return btn
     }()
     
-    private var nameTextField: UITextField = {
-        var txt = UITextField()
+    private var nameTextField: PaddingTextField = {
+        var txt = PaddingTextField()
         txt.textColor = Colors.darko
         txt.font = AppFont.regular.font(size: 16)
-        txt.layer.cornerRadius = 12
+        txt.layer.cornerRadius = 20
         txt.layer.borderWidth = 1
         txt.layer.borderColor = Colors.gray.cgColor
-        txt.placeholder = "Name"
+        txt.placeholder = "Full Name"
         return txt
     }()
     
-    private var emailTextField: UITextField = {
-        var txt = UITextField()
+    private var emailTextField: PaddingTextField = {
+        var txt = PaddingTextField()
         txt.textColor = Colors.darko
         txt.font = AppFont.regular.font(size: 16)
-        txt.layer.cornerRadius = 12
+        txt.layer.cornerRadius = 20
         txt.layer.borderWidth = 1
         txt.layer.borderColor = Colors.gray.cgColor
         txt.placeholder = "Email"
+        txt.autocapitalizationType = .none
+        txt.autocorrectionType = .no
         txt.keyboardType = .emailAddress
         return txt
     }()
     
-    private var passwordTextField: UITextField = {
-        var txt = UITextField()
+    private var passwordTextField: PaddingTextField = {
+        var txt = PaddingTextField()
         txt.textColor = Colors.darko
         txt.font = AppFont.regular.font(size: 16)
-        txt.layer.cornerRadius = 12
+        txt.layer.cornerRadius = 20
         txt.layer.borderWidth = 1
         txt.layer.borderColor = Colors.gray.cgColor
-        txt.placeholder = "password"
+        txt.placeholder = "Password"
         txt.isSecureTextEntry = true
-        txt.keyboardType = .phonePad
+        txt.keyboardType = .default
         return txt
     }()
     
@@ -83,15 +88,15 @@ class RegisterViewController: UIViewController {
         return btn
     }()
     
-    private var phoneTextField: UITextField = {
-        var txt = UITextField()
+    private var phoneTextField: PaddingTextField = {
+        var txt = PaddingTextField()
         txt.textColor = Colors.darko
         txt.font = AppFont.regular.font(size: 16)
-        txt.layer.cornerRadius = 12
+        txt.layer.cornerRadius = 20
         txt.layer.borderWidth = 1
         txt.layer.borderColor = Colors.gray.cgColor
         txt.keyboardType = .phonePad
-        txt.placeholder = "phone"
+        txt.placeholder = "Phone"
         return txt
     }()
     
@@ -99,9 +104,8 @@ class RegisterViewController: UIViewController {
         var btn = UIButton()
         btn.setTitle("Save", for: .normal)
         btn.backgroundColor = Colors.primary
-        btn.titleLabel?.textColor = Colors.white
-        btn.setTitleColor(Colors.darko, for: .normal)
-        btn.layer.cornerRadius = 12
+        btn.setTitleColor(Colors.white, for: .normal)
+        btn.layer.cornerRadius = 20
         btn.addTarget(self, action: #selector(saveButtonClicked), for: .touchUpInside)
         return btn
     }()
@@ -110,7 +114,13 @@ class RegisterViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = Colors.white
         
+        let leftBarBtn = self.backButton(vcName: "Login", target: self, action: #selector(backTapped))
+        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: leftBarBtn)
+        
         NotificationCenter.default.addObserver(self, selector: #selector(showEmailAnimation), name: .emailVerificationSent, object: nil)
+        
+        viewModel.delegate = self
+        
         setUpUI()
     }
     
@@ -123,19 +133,19 @@ class RegisterViewController: UIViewController {
         profileButton.autoAlignAxis(.vertical, toSameAxisOf: view)
         
         view.addSubview(nameTextField)
-        nameTextField.autoPinEdge(.top, to: .bottom, of: profileButton, withOffset: 24)
+        nameTextField.autoPinEdge(.top, to: .bottom, of: profileButton, withOffset: 12)
         nameTextField.autoPinEdge(.left, to: .left, of: view, withOffset: 20)
         nameTextField.autoPinEdge(.right, to: .right, of: view, withOffset: -20)
         nameTextField.autoSetDimension(.height, toSize: 40)
         
         view.addSubview(emailTextField)
-        emailTextField.autoPinEdge(.top, to: .bottom, of: nameTextField, withOffset: 24)
+        emailTextField.autoPinEdge(.top, to: .bottom, of: nameTextField, withOffset: 12)
         emailTextField.autoPinEdge(.left, to: .left, of: view, withOffset: 20)
         emailTextField.autoPinEdge(.right, to: .right, of: view, withOffset: -20)
         emailTextField.autoSetDimension(.height, toSize: 40)
         
         view.addSubview(passwordTextField)
-        passwordTextField.autoPinEdge(.top, to: .bottom, of: emailTextField, withOffset: 24)
+        passwordTextField.autoPinEdge(.top, to: .bottom, of: emailTextField, withOffset: 12)
         passwordTextField.autoPinEdge(.left, to: .left, of: view, withOffset: 20)
         passwordTextField.autoPinEdge(.right, to: .right, of: view, withOffset: -20)
         passwordTextField.autoSetDimension(.height, toSize: 40)
@@ -144,14 +154,14 @@ class RegisterViewController: UIViewController {
         passwordTextField.rightViewMode = .always
         
         view.addSubview(phoneTextField)
-        phoneTextField.autoPinEdge(.top, to: .bottom, of: passwordTextField, withOffset: 24)
+        phoneTextField.autoPinEdge(.top, to: .bottom, of: passwordTextField, withOffset: 12)
         phoneTextField.autoPinEdge(.left, to: .left, of: view, withOffset: 20)
         phoneTextField.autoPinEdge(.right, to: .right, of: view, withOffset: -20)
         phoneTextField.autoSetDimension(.height, toSize: 40)
         
         view.addSubview(saveButton)
         saveButton.autoSetDimension(.height, toSize: 40)
-        saveButton.autoPinEdge(.bottom, to: .bottom, of: view, withOffset:  -40)
+        saveButton.autoPinEdge(.top, to: .bottom, of: phoneTextField, withOffset:  12)
         saveButton.autoPinEdge(.left, to: .left, of: view, withOffset: 20)
         saveButton.autoPinEdge(.right, to: .right, of: view, withOffset: -20)
     }
@@ -163,9 +173,9 @@ class RegisterViewController: UIViewController {
         vc.allowsEditing = true
         self.present(vc, animated: true)
     }
+    
     @objc private func openCamera() {
         guard UIImagePickerController.isSourceTypeAvailable(.camera) else {
-            print("Kamera mevcut değil")
             return
         }
         let vc = UIImagePickerController()
@@ -179,7 +189,8 @@ class RegisterViewController: UIViewController {
         guard let emailText = emailTextField.text, !emailText.isEmpty,
               let nameText = nameTextField.text, !nameText.isEmpty,
               let passwordText = passwordTextField.text, !passwordText.isEmpty,
-              let phoneNumber = phoneTextField.text, !phoneNumber.isEmpty, let image = profileButton.imageView?.image
+              let phoneNumber = phoneTextField.text, !phoneNumber.isEmpty,
+              let image = profileButton.imageView?.image
         else {
             self.showError(message: "Please enter your information")
             return
@@ -188,12 +199,17 @@ class RegisterViewController: UIViewController {
         viewModel.uploadImage(image: image, userId: "1")
     }
     
-    @objc func showEmailAnimation(){
+    @objc private func showEmailAnimation(){
         let vc = AnimationViewController()
         vc.source = .register
         navigationController?.pushViewController(vc, animated: true)
     }
-    @objc func toggaleEye(){
+    
+    @objc private func backTapped() {
+        navigationController?.popViewController(animated: true)
+    }
+    
+    @objc private func toggaleEye(){
         showPassword.toggle()
         let iconName = showPassword ? "eye.slash": "eye"
         passwordTextField.isSecureTextEntry = !showPassword
@@ -224,3 +240,12 @@ extension RegisterViewController: UIImagePickerControllerDelegate, UINavigationC
 }
 
 
+extension RegisterViewController: RegisterViewModelDelegate {
+    func userDidCreate(isSuccess: Bool, message: String) {
+        if isSuccess{
+            navigationController?.popViewController(animated: true)
+        }else {
+            self.showError(message: message)
+        }
+    }
+}
