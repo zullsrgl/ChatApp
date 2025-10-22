@@ -22,19 +22,19 @@ enum Colors {
         )
     }
     
-    static var bgYellow: UIColor {
+    static var bgWhite: UIColor {
         return color(
-            dark: UIColor(red: 255.0 / 255.0, green: 248.0 / 255.0, blue: 225.0 / 255.0, alpha: 1.0),
-            light: UIColor(red: 255.0 / 255.0, green: 248.0 / 255.0, blue: 225.0 / 255.0, alpha: 1.0)
+            dark: UIColor(red: 30.0 / 255.0, green: 30.0 / 255.0, blue: 30.0 / 255.0, alpha: 1.0),
+            light: UIColor(red: 245.0 / 255.0, green: 245.0 / 255.0, blue: 245.0 / 255.0, alpha: 1.0)
         )
     }
     
     static var darko: UIColor {
-        return color(
-            dark: UIColor(red: 23.0 / 255.0, green: 23.0 / 255.0, blue: 23.0 / 255.0, alpha: 1.0),
-            light: UIColor(red: 23.0 / 255.0, green: 23.0 / 255.0, blue: 23.0 / 255.0, alpha: 1.0)
-        )
-    }
+            return color(
+                dark: UIColor(red: 255.0 / 255.0, green: 255.0 / 255.0, blue: 255.0 / 255.0, alpha: 1.0),
+                light: UIColor(red: 23.0 / 255.0, green: 23.0 / 255.0, blue: 23.0 / 255.0, alpha: 1.0)
+            )
+        }
     
     static var gray: UIColor {
         return color(
@@ -42,12 +42,19 @@ enum Colors {
             light: UIColor(red: 171.0 / 255.0, green: 170.0 / 255.0, blue: 169.0 / 255.0, alpha: 1.0)
         )
     }
-    static var white: UIColor {
+    
+    static var lightGray: UIColor {
         return color(
-            dark: UIColor(red: 244.0 / 255.0, green: 243.0 / 255.0, blue: 240.0 / 255.0, alpha: 1.0),
-            light: UIColor(red: 244.0 / 255.0, green: 243.0 / 255.0, blue: 240.0 / 255.0, alpha: 1.0)
+            dark: UIColor(red: 238.0 / 255.0, green: 238.0 / 255.0, blue: 238.0 / 255.0, alpha: 1.0),
+            light: UIColor(red: 238.0 / 255.0, green: 238.0 / 255.0, blue: 238.0 / 255.0, alpha: 1.0)
         )
     }
+    static var white: UIColor {
+            return color(
+                dark: UIColor(red: 29.0 / 255.0, green: 29.0 / 255.0, blue: 31.0 / 255.0, alpha: 1.0),
+                light: UIColor(red: 255.0 / 255.0, green: 255.0 / 255.0, blue: 255.0 / 255.0, alpha: 1.0)
+            )
+        }
     
     static var red: UIColor {
         return color(
@@ -55,21 +62,12 @@ enum Colors {
             light: UIColor(red: 255.0 / 255.0, green: 59.0 / 255.0, blue: 48.0 / 255.0, alpha: 1.0)
         )
     }
-
-
 }
 
 extension Colors {
-
     static func color(dark: UIColor, light: UIColor) -> UIColor {
-        guard #available(iOS 13, *) else { return light }
-        
-        return UIColor { (UITraitCollection: UITraitCollection) -> UIColor in
-            switch UITraitCollection.userInterfaceStyle {
-            case .dark: return dark
-            case .light: return light
-            default: return light
-            }
+        return UIColor { (traitCollection: UITraitCollection) -> UIColor in
+            return traitCollection.userInterfaceStyle == .dark ? dark : light
         }
     }
 }

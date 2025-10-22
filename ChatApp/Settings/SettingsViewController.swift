@@ -8,41 +8,38 @@
 import UIKit
 import FirebaseAuth
 
-class SettingsViewController: UIViewController {
+class SettingsViewController: UIViewController{
+  
     
-    private let logoutBtn: UIButton = {
-        var btn = UIButton()
-        btn.setTitle("Log out", for: .normal)
-        btn.setTitleColor(Colors.white, for: .normal)
-        btn.backgroundColor = Colors.red
-        btn.layer.cornerRadius = 20
-        return btn
-    }()
+    private let tableView = SettingsTableView()
+    lazy var viewModel = SettingsViewModel()
     
     override func viewDidLoad(){
         super.viewDidLoad()
-        logoutBtn.addTarget(self, action: #selector(logOutBtnCliked), for: .touchUpInside)
-        view.addSubview(logoutBtn)
-        logoutBtn.autoAlignAxis(.vertical, toSameAxisOf: view)
-        logoutBtn.autoAlignAxis(.horizontal, toSameAxisOf: view)
-        logoutBtn.autoSetDimension(.height, toSize: 40)
+        
+        navigationItem.title = "Settings"
+        navigationController?.navigationBar.prefersLargeTitles = true
+        navigationItem.largeTitleDisplayMode = .automatic
+        
+        view.addSubview(tableView)
+        tableView.autoPinEdgesToSuperviewEdges()
+        viewModel.delegate = self
+        tableView.delegate = self
+        viewModel.getUser()
+        
     }
-    //TODO: fix- This code is made for testing purposes.
-    @objc private func logOutBtnCliked() {
-        do {
-            try Auth.auth().signOut()
-            
-            let loginVC = LoginViewController()
-            let nav = UINavigationController(rootViewController: loginVC)
-            
-            if let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate,
-               let window = sceneDelegate.window {
-                window.rootViewController = nav
-                window.makeKeyAndVisible()
-            }
-            
-        } catch let signOutError as NSError {
-            print("Error signing out: %@", signOutError)
-        }
+    
+}
+
+extension SettingsViewController: SettingsViewModelDelegate {
+    func userFetched(user: User) {
+        tableView.configure(with: user)
+    }
+}
+
+extension SettingsViewController:SettingsTableViewDelegate {
+    func tapedProfile() {
+        let vc = EditProfileViewController()
+        navigationController?.pushViewController(vc, animated: true)
     }
 }

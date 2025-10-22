@@ -15,12 +15,10 @@ class AuthManager {
     private let auth = Auth.auth()
     private var verificationId: String?
     
-    func createUser(email: String, password: String, phoneNumber: String, name: String, completion: @escaping (Bool, String) -> Void) {
-        auth.createUser(withEmail: email, password: password){ authResult, error in
-            
+    func createUser(email: String, password: String, phoneNumber: String, name: String, completion: @escaping (Bool, String, String?) -> Void) {
+        auth.createUser(withEmail: email, password: password) { authResult, error in
             if let err = error as NSError? {
                 var message = ""
-                
                 if let errorCode = AuthErrorCode(rawValue: err.code) {
                     switch errorCode {
                     case .emailAlreadyInUse:
@@ -32,18 +30,16 @@ class AuthManager {
                     default:
                         message = "Other error: \(err.localizedDescription)"
                     }
-                } else {
-                    message = "Other error: \(err.localizedDescription)"
                 }
-                
-                completion(false, message)
+                completion(false, message, nil)
                 return
             }
-            
+
             guard let user = authResult?.user else {
-                completion(false, "User could not be created.")
+                completion(false, "User could not be created.", nil)
                 return
             }
+
             let db = Firestore.firestore()
             db.collection("user").document(user.uid).setData([
                 "name": name,
@@ -52,21 +48,23 @@ class AuthManager {
                 "uid": user.uid
             ]) { error in
                 if let error = error {
-                    completion(false, "Firestore record error: \(error.localizedDescription)")
-                } else {
-                    print("user successfully saved")
+                    completion(false, "Firestore record error: \(error.localizedDescription)", nil)
+                    return
                 }
-            }
-            user.sendEmailVerification { error in
-                if let error = error {
-                    completion(false, "Verification email not sent: \(error.localizedDescription)")
-                } else {
-                    completion(true, "Check your email for verification.")
-                    NotificationCenter.default.post(name: .emailVerificationSent, object: nil)
+                
+                user.sendEmailVerification { error in
+                    if let error = error {
+                        print("Verification email not sent: \(error.localizedDescription)")
+                    } else {
+                        print("Verification email sent.")
+                        NotificationCenter.default.post(name: .emailVerificationSent, object: nil)
+                    }
                 }
+                completion(true, "User created successfully", user.uid)
             }
         }
     }
+
     
     func checkEmailExists(email: String, completion: @escaping (Bool) -> Void){
         let db = Firestore.firestore()
@@ -130,5 +128,52 @@ class AuthManager {
                 completion("Password reset email sent successfully", true)
             }
         }
+    }
+    
+    func saveProfileImage(userId: String, imageURL: String, completion: @escaping(Bool) -> Void){
+        let db = Firestore.firestore()
+        db.collection("user").document(userId).updateData([
+            "profileImageUrl": imageURL
+        ]){ error in
+            if let error = error {
+                print("profile image not saved\(error)")
+                completion(false)
+            }else {
+                completion(true)
+            }
+        }
+    }
+    
+    
+    func currentUser(completion: @escaping (User?) -> Void){
+        guard let userId = Auth.auth().currentUser?.uid else {
+            completion(nil)
+            return
+        }
+        
+        let db = Firestore.firestore()
+        db.collection("user").document(userId).getDocument{ snapshot, error in
+            
+            if let error = error {
+                print("Firestore error: \(error.localizedDescription)")
+                completion(nil)
+                return
+            }
+            
+            guard let data = snapshot?.data() else {
+                print("No document found")
+                completion(nil)
+                return
+            }
+            
+            let user = User(name: data["name"] as? String ?? "",
+                            uid: userId,
+                            email: data["email"] as? String ?? "",
+                            phone: data["phone"] as? String ?? "",
+                            profileImageUrl: data["profileImageUrl"] as? String ?? "")
+            completion(user)
+            
+        }
+        
     }
 }

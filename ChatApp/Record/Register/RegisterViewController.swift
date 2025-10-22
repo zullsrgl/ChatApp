@@ -195,8 +195,7 @@ class RegisterViewController: UIViewController {
             self.showError(message: "Please enter your information")
             return
         }
-        viewModel.createUser(email: emailText, password: passwordText, phoneNumber: phoneNumber, name: nameText)
-        viewModel.uploadImage(image: image, userId: "1")
+        viewModel.createUser(email: emailText, password: passwordText, phoneNumber: phoneNumber, name: nameText, image: image)
     }
     
     @objc private func showEmailAnimation(){

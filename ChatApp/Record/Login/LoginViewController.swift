@@ -85,7 +85,7 @@ class LoginViewController: UIViewController{
     
     private var eyeIconButton: UIButton = {
         var btn = UIButton()
-        btn.setImage(UIImage(systemName: "eye"), for: .normal)
+        btn.setImage(UIImage(systemName: "eye.slash"), for: .normal)
         btn.isEnabled = true
         btn.clipsToBounds = true
         btn.tintColor = Colors.secondary
@@ -205,7 +205,7 @@ class LoginViewController: UIViewController{
     
     @objc func toggaleEye(){
         showPassword.toggle()
-        let iconName = showPassword ? "eye.slash": "eye"
+        let iconName = showPassword ? "eye": "eye.slash"
         passwordTextField.isSecureTextEntry = !showPassword
         eyeIconButton.setImage(UIImage(systemName: iconName), for: .normal)
         

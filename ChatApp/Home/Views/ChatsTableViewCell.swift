@@ -12,6 +12,7 @@ class ChatsTableViewCell: UITableViewCell {
     
     private let bgView: UIView = {
        var view = UIView()
+        view.backgroundColor = Colors.white
         return view
     }()
     
@@ -35,7 +36,6 @@ class ChatsTableViewCell: UITableViewCell {
     
     private let messageLabel: UILabel = {
         var lbl = UILabel()
-        lbl.text = "Selam Nasılsın?"
         lbl.textColor = Colors.gray
         lbl.textAlignment = .left
         lbl.translatesAutoresizingMaskIntoConstraints = false
@@ -64,6 +64,12 @@ class ChatsTableViewCell: UITableViewCell {
         lbl.font = AppFont.bold.font(size: 16)
         lbl.translatesAutoresizingMaskIntoConstraints = false
         return lbl
+    }()
+    
+    private let bottomLine: UIView = {
+        var view = UIView()
+        view.backgroundColor = Colors.lightGray
+        return view
     }()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -98,8 +104,16 @@ class ChatsTableViewCell: UITableViewCell {
         messageCountLabel.autoPinEdge(.top, to: .bottom, of: timeLabel, withOffset: 8)
         messageCountLabel.autoSetDimension(.height, toSize: 20)
         messageCountLabel.autoSetDimension(.width, toSize: 20)
+    
+        bgView.addSubview(bottomLine)
+        bottomLine.autoPinEdge(.left, to: .left, of: bgView, withOffset: 56)
+        bottomLine.autoPinEdge(.right, to: .right, of: bgView)
+        bottomLine.autoSetDimension(.height, toSize: 1)
+    }
+    
+    func setCell(index: Int){
         
-        
+        messageLabel.text = "Message: \(index)"
     }
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
