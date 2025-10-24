@@ -7,37 +7,10 @@
 
 import PureLayout
 
-class RegisterViewController: UIViewController {
+class RegisterViewController: BaseViewController {
     
     lazy var viewModel = RegisterViewModel()
     private var showPassword: Bool = false
-    
-    private lazy var profileButton: UIButton = {
-        var btn = UIButton()
-        btn.setImage(UIImage(systemName: "photo.circle.fill"), for: .normal)
-        btn.imageView?.contentMode = .scaleAspectFit
-        btn.contentHorizontalAlignment = .fill
-        btn.contentVerticalAlignment = .fill
-        btn.layer.borderColor = Colors.primary.cgColor
-        btn.layer.borderWidth = 1
-        btn.layer.cornerRadius =  50
-        btn.layer.masksToBounds = true
-        btn.tintColor = Colors.primary
-        let camera = UIAction(title: "Camera", image: UIImage(systemName: "camera")) { [weak self] _ in
-            self?.openCamera()
-        }
-        let gallery = UIAction(title: "Gallery", image: UIImage(systemName: "photo")) { [weak self] _ in
-            self?.openGallery()
-        }
-        let cancel = UIAction(title: "Cancel", image: UIImage(systemName: "x.circle")) { _ in
-            print("İptal")
-        }
-        
-        btn.menu = UIMenu(title: "", children: [camera, gallery, cancel])
-        btn.showsMenuAsPrimaryAction = true
-        
-        return btn
-    }()
     
     private var nameTextField: PaddingTextField = {
         var txt = PaddingTextField()
@@ -127,10 +100,6 @@ class RegisterViewController: UIViewController {
     private func setUpUI(){
         
         view.addSubview(profileButton)
-        profileButton.autoPinEdge(.top, to: .top, of: view, withOffset: 100)
-        profileButton.autoSetDimension(.height, toSize: 100)
-        profileButton.autoSetDimension(.width, toSize: 100)
-        profileButton.autoAlignAxis(.vertical, toSameAxisOf: view)
         
         view.addSubview(nameTextField)
         nameTextField.autoPinEdge(.top, to: .bottom, of: profileButton, withOffset: 12)
@@ -164,24 +133,6 @@ class RegisterViewController: UIViewController {
         saveButton.autoPinEdge(.top, to: .bottom, of: phoneTextField, withOffset:  12)
         saveButton.autoPinEdge(.left, to: .left, of: view, withOffset: 20)
         saveButton.autoPinEdge(.right, to: .right, of: view, withOffset: -20)
-    }
-    
-    @objc private func openGallery() {
-        let vc = UIImagePickerController()
-        vc.sourceType = .photoLibrary
-        vc.delegate = self
-        vc.allowsEditing = true
-        self.present(vc, animated: true)
-    }
-    
-    @objc private func openCamera() {
-        guard UIImagePickerController.isSourceTypeAvailable(.camera) else {
-            return
-        }
-        let vc = UIImagePickerController()
-        vc.sourceType = .camera
-        vc.delegate = self
-        present(vc, animated: true)
     }
     
     @objc func saveButtonClicked(){
@@ -220,24 +171,6 @@ class RegisterViewController: UIViewController {
         self.view.endEditing(false)
     }
 }
-
-extension RegisterViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate{
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        let selectedImage = info[.editedImage] as? UIImage ?? info[.originalImage] as? UIImage
-        if let image = selectedImage {
-            profileButton.setImage(image, for: .normal)
-            profileButton.imageView?.contentMode = .scaleAspectFill
-            profileButton.clipsToBounds = true
-            profileButton.layer.cornerRadius = profileButton.bounds.width / 2
-        }
-        picker.dismiss(animated: true)
-    }
-    
-    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-        picker.dismiss(animated: true)
-    }
-}
-
 
 extension RegisterViewController: RegisterViewModelDelegate {
     func userDidCreate(isSuccess: Bool, message: String) {

@@ -174,6 +174,35 @@ class AuthManager {
             completion(user)
             
         }
-        
     }
+
+    func updateUser(imageUrl: String?, fullName: String?, phone: String?, completion: @escaping (String?) -> Void) {
+            guard let userId = Auth.auth().currentUser?.uid else {
+                completion(nil)
+                return
+            }
+            
+            var updateData: [String: Any] = [:]
+            
+            if let name = fullName, !name.isEmpty {
+                updateData["name"] = name
+            }
+            if let phone = phone, !phone.isEmpty {
+                updateData["phone"] = phone
+            }
+            if let imageUrl = imageUrl, !imageUrl.isEmpty {
+                updateData["profileImageUrl"] = imageUrl
+            }
+            
+            let db = Firestore.firestore()
+            db.collection("user").document(userId).updateData(updateData) { error in
+                if let error = error {
+                    print("Firestore update hatası: \(error.localizedDescription)")
+                    completion(nil)
+                } else {
+                    completion(userId)
+                    
+                }
+            }
+        }
 }

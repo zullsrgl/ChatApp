@@ -14,7 +14,6 @@ protocol ProfileCardViewDelegate: AnyObject {
     func didTapEditProfile()
 }
 
-
 class ProfileCardView: UIView {
     
     weak var delegate: ProfileCardViewDelegate?
@@ -43,7 +42,7 @@ class ProfileCardView: UIView {
     
     private let profileImage: UIImageView = {
         var image = UIImageView()
-        image.contentMode = .scaleAspectFit
+        image.contentMode = .scaleAspectFill
         image.image = UIImage(systemName: "persone")
         image.layer.cornerRadius = 32
         image.layer.masksToBounds = true
@@ -56,7 +55,8 @@ class ProfileCardView: UIView {
     private let fullNameLabel: UILabel = {
         var lbl = UILabel()
         lbl.textColor = Colors.darko
-        lbl.text = "Zülal Sarıoğlu"
+        lbl.text = "Züal Sarıoğlu"
+        lbl.font = AppFont.regular.font(size: 16)
         lbl.textAlignment = .left
         lbl.translatesAutoresizingMaskIntoConstraints = false
         lbl.isSkeletonable = true
@@ -85,7 +85,8 @@ class ProfileCardView: UIView {
         isSkeletonable = true
         
         let gesture = UITapGestureRecognizer(target: self, action: #selector(tappedProfileCard))
-        addGestureRecognizer(gesture)
+        profileBgView.isUserInteractionEnabled = true
+        profileBgView.addGestureRecognizer(gesture)
         setUpUI()
         
     }
@@ -111,6 +112,7 @@ class ProfileCardView: UIView {
         profileBgView.addSubview(fullNameLabel)
         fullNameLabel.autoPinEdge(.left, to: .right, of: profileImage, withOffset: 8)
         fullNameLabel.autoAlignAxis(toSuperviewAxis: .horizontal)
+        fullNameLabel.autoSetDimension(.height, toSize: 40)
         
         profileBgView.addSubview(arrowImageView)
         arrowImageView.autoPinEdge(.right, to: .right, of: profileBgView, withOffset: -8)
@@ -129,7 +131,7 @@ class ProfileCardView: UIView {
     
     private func startAnimation(){
         self.showAnimatedGradientSkeleton(
-            usingGradient: .init(baseColor: .concrete, secondaryColor: .lightGray),
+            usingGradient: .init(baseColor: Colors.gray, secondaryColor: Colors.lightGray),
             animation: GradientDirection.leftRight.slidingAnimation()
         )
     }
@@ -138,7 +140,9 @@ class ProfileCardView: UIView {
         hideSkeleton(reloadDataAfter: false, transition: .crossDissolve(0.25))
     }
     
-    func canfigure(user: User){
+    func configure(user: User){
+        
+        stopAnimation()
         
         fullNameLabel.text = user.name
         
@@ -146,12 +150,12 @@ class ProfileCardView: UIView {
         
         if let url = URL(string: imageUrl) {
             profileImage.kf.setImage(with: url)
-            stopAnimation()
-        }else {
+            
+        } else {
             profileImage.image = UIImage(systemName: "person.crop.circle")
-            stopAnimation()
         }
     }
+    
     @objc func tappedProfileCard(){
         delegate?.didTapEditProfile()
     }

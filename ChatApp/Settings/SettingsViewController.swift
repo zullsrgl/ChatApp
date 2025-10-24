@@ -33,23 +33,29 @@ class SettingsViewController: UIViewController{
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationItem.largeTitleDisplayMode = .automatic
         view.backgroundColor = Colors.bgWhite
+        NotificationCenter.default.addObserver(self, selector: #selector(userUpdeted), name: .userUpdated, object: nil)
         
+        profileCardView.delegate =  self
+        viewModel.delegate = self
+        viewModel.getUser()
+    
         view.addSubview(stackContainerView)
         stackContainerView.autoPinEdgesToSuperviewEdges()
         
         stackContainerView.addArrangedSubview(profileCardView)
         profileCardView.autoSetDimension(.height, toSize: 140)
-        profileCardView.delegate =  self
-        viewModel.delegate = self
-        viewModel.getUser()
         
     }
     
+    @objc func userUpdeted(){
+        viewModel.getUser()
+   }
 }
+
 
 extension SettingsViewController: SettingsViewModelDelegate {
     func userFetched(user: User) {
-        profileCardView.canfigure(user: user)
+        profileCardView.configure(user: user)
     }
 }
 

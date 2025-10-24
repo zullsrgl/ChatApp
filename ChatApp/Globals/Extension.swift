@@ -97,66 +97,11 @@ extension UIViewController{
         backBtn.translatesAutoresizingMaskIntoConstraints = false
         backBtn.addTarget(target, action: action, for: .touchUpInside)
         return backBtn
-    }
-    
-    
-    
-    
-    func createSection(sectionCount: Int, rowCount: Int, image: UIImage? = nil){
-        let mainStack = UIStackView()
-        mainStack.axis = .vertical
-        mainStack.spacing = 24
-        mainStack.alignment = .fill
-        mainStack.translatesAutoresizingMaskIntoConstraints = false
-        
-        view.addSubview(mainStack)
-        mainStack.autoPinEdgesToSuperviewEdges()
-        
-        for sectionIndex in 0..<sectionCount {
-            
-            let sectionStack = UIStackView()
-            sectionStack.axis = .vertical
-            sectionStack.spacing = 8
-            
-            let sectionlbl = UILabel()
-            sectionlbl.text = "Section \(sectionIndex + 1)"
-            
-            sectionStack.addArrangedSubview(sectionlbl)
-            
-            for rowIndex in 0..<rowCount {
-                let rowStack = UIStackView()
-                rowStack.axis = .horizontal
-                rowStack.alignment = .center
-                rowStack.spacing = 12
-                
-                if let image = image {
-                    let imageView = UIImageView(image: image)
-                    imageView.contentMode = .scaleAspectFit
-                    imageView.widthAnchor.constraint(equalToConstant: 24).isActive = true
-                    imageView.heightAnchor.constraint(equalToConstant: 24).isActive = true
-                    rowStack.addArrangedSubview(imageView)
-                    
-                    let label = UILabel()
-                    label.text = "Row \(rowIndex + 1)"
-                    label.font = .systemFont(ofSize: 16)
-                    rowStack.addArrangedSubview(label)
-                    
-                    sectionStack.addArrangedSubview(rowStack)
-                }
-                mainStack.addArrangedSubview(sectionStack)
-            }
-            
-        }
-    }
-    
-    
+    }  
 }
 
 extension Notification.Name {
     static let emailVerificationSent = Notification.Name("emailVerificationSent")
+    static let userUpdated = Notification.Name("userUpdated")
 }
 
-
-extension UIView {
-   
-}
