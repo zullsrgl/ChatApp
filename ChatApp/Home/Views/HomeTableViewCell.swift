@@ -7,7 +7,7 @@
 
 import PureLayout
 
-class ChatsTableViewCell: UITableViewCell {
+class HomeTableViewCell: UITableViewCell {
     static let Identifier = "chatsTableViewCell"
     
     private let bgView: UIView = {

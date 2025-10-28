@@ -7,7 +7,15 @@
 
 import PureLayout
 
-class ChatsTableView: UIView {
+
+protocol HomeTableViewDelegate: AnyObject {
+    func cellDidSelect()
+}
+
+class HomeTableView: UIView {
+    
+    weak var delegate: HomeTableViewDelegate?
+    
     private let searchBar: UISearchBar = {
         var view = UISearchBar()
         view.placeholder = "Search"
@@ -26,6 +34,8 @@ class ChatsTableView: UIView {
         tableView.showsVerticalScrollIndicator = true
         tableView.backgroundColor = Colors.white
         tableView.separatorStyle = .none
+        tableView.isUserInteractionEnabled = true
+        tableView.contentInsetAdjustmentBehavior = .automatic
         return tableView
     }()
     
@@ -33,7 +43,7 @@ class ChatsTableView: UIView {
         super.init(frame: frame)
         tableView.delegate = self
         tableView.dataSource = self
-        tableView.register(ChatsTableViewCell.self, forCellReuseIdentifier: ChatsTableViewCell.Identifier)
+        tableView.register(HomeTableViewCell.self, forCellReuseIdentifier: HomeTableViewCell.Identifier)
         searchBar.delegate = self
         
         addSubview(tableView)
@@ -49,13 +59,13 @@ class ChatsTableView: UIView {
     }
 }
 
-extension ChatsTableView: UITableViewDelegate, UITableViewDataSource {
+extension HomeTableView: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return 100
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: ChatsTableViewCell.Identifier, for: indexPath) as! ChatsTableViewCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: HomeTableViewCell.Identifier, for: indexPath) as! HomeTableViewCell
         cell.setCell(index: indexPath.row)
         return cell
     }
@@ -63,9 +73,12 @@ extension ChatsTableView: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 80
     }
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        delegate?.cellDidSelect()
+    }
 }
 
 
-extension ChatsTableView: UISearchBarDelegate {
+extension HomeTableView: UISearchBarDelegate {
     //TODO: filtering operations
 }

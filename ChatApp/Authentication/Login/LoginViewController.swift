@@ -7,7 +7,7 @@
 
 import PureLayout
 
-class LoginViewController: UIViewController{
+class LoginViewController: BaseViewController {
     
     private lazy var viewModel = LoginViewModel()
     private var bottomConstraint: NSLayoutConstraint?
@@ -90,7 +90,6 @@ class LoginViewController: UIViewController{
         btn.clipsToBounds = true
         btn.tintColor = Colors.secondary
         btn.isUserInteractionEnabled = true
-        btn.addTarget(self, action: #selector(toggaleEye), for: .touchUpInside)
         return btn
     }()
     
@@ -101,7 +100,6 @@ class LoginViewController: UIViewController{
         btn.setTitleColor(Colors.white, for: .normal)
         btn.layer.cornerRadius = 20
         btn.titleLabel?.textColor = Colors.white
-        btn.addTarget(self, action: #selector(logInButtonClicked), for: .touchUpInside)
         return btn
     }()
     
@@ -117,7 +115,6 @@ class LoginViewController: UIViewController{
             .font: AppFont.bold.font(size: 16)]))
         
         btn.setAttributedTitle(fullText, for: .normal)
-        btn.addTarget(self, action: #selector(signUpTapped), for: .touchUpInside)
         return btn
     }()
     
@@ -129,7 +126,6 @@ class LoginViewController: UIViewController{
             .font: AppFont.bold.font(size: 16)])
         
         btn.setAttributedTitle(fullText, for: .normal)
-        btn.addTarget(self, action: #selector(resetPasswordTapped), for: .touchUpInside)
         return btn
     }()
     
@@ -137,8 +133,12 @@ class LoginViewController: UIViewController{
     override func viewDidLoad(){
         super.viewDidLoad()
         
-        view.backgroundColor = Colors.white
         viewModel.delegate = self
+        
+        eyeIconButton.addTarget(self, action: #selector(toggaleEye), for: .touchUpInside)
+        logInButton.addTarget(self, action: #selector(logInButtonClicked), for: .touchUpInside)
+        registerButton.addTarget(self, action: #selector(signUpTapped), for: .touchUpInside)
+        resetPassword.addTarget(self, action: #selector(resetPasswordTapped), for: .touchUpInside)
         
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)

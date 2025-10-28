@@ -73,7 +73,7 @@ class ProfileCardView: UIView {
         btn.layer.borderWidth = 1
         btn.isUserInteractionEnabled = true
         btn.translatesAutoresizingMaskIntoConstraints = false
-        btn.addTarget(self, action: #selector(tappedLogOut), for: .touchUpInside)
+        
         return btn
     }()
     
@@ -87,6 +87,9 @@ class ProfileCardView: UIView {
         let gesture = UITapGestureRecognizer(target: self, action: #selector(tappedProfileCard))
         profileBgView.isUserInteractionEnabled = true
         profileBgView.addGestureRecognizer(gesture)
+        
+        logOutBtn.addTarget(self, action: #selector(tappedLogOut), for: .touchUpInside)
+        
         setUpUI()
         
     }
@@ -159,7 +162,6 @@ class ProfileCardView: UIView {
     @objc func tappedProfileCard(){
         delegate?.didTapEditProfile()
     }
-    
     
     @objc func tappedLogOut() {
         do {

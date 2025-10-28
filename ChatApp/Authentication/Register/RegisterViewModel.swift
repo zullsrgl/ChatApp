@@ -14,7 +14,7 @@ final class RegisterViewModel {
     
     weak var delegate: RegisterViewModelDelegate?
     
-    func uploadImage(image: UIImage, userId: String){
+    private func uploadImage(image: UIImage, userId: String){
         CloudinaryManager.shared.uploadImage(image, userId: userId) { imageURL in
             guard let imageURL = imageURL else {
                 return

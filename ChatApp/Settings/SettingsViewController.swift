@@ -8,7 +8,7 @@
 import UIKit
 import FirebaseAuth
 
-class SettingsViewController: UIViewController{
+class SettingsViewController: BaseViewController{
     
     private let stackContainerView: UIStackView = {
         let stackView = UIStackView()
@@ -23,16 +23,19 @@ class SettingsViewController: UIViewController{
         return stackView
     }()
     
-    lazy var viewModel = SettingsViewModel()
+    private lazy var viewModel = SettingsViewModel()
     private let profileCardView = ProfileCardView()
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        self.navBarSetUp(title: "Settings", largeTitle: true)
+    }
     
     override func viewDidLoad(){
         super.viewDidLoad()
-        
-        navigationItem.title = "Settings"
-        navigationController?.navigationBar.prefersLargeTitles = true
-        navigationItem.largeTitleDisplayMode = .automatic
         view.backgroundColor = Colors.bgWhite
+       
         NotificationCenter.default.addObserver(self, selector: #selector(userUpdeted), name: .userUpdated, object: nil)
         
         profileCardView.delegate =  self

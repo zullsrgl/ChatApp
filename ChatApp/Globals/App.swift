@@ -54,6 +54,7 @@ class BaseViewController: UIViewController {
         btn.layer.borderWidth = 1
         btn.layer.cornerRadius =  50
         btn.layer.masksToBounds = true
+        btn.isHidden = true
         btn.isSkeletonable = true
         btn.tintColor = Colors.primary
         let camera = UIAction(title: "Camera", image: UIImage(systemName: "camera")) { [weak self] _ in
@@ -74,15 +75,24 @@ class BaseViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        view.addSubview(profileButton)
-        profileButton.autoPinEdge(.top, to: .top, of: view, withOffset: 100)
-        profileButton.autoSetDimension(.height, toSize: 100)
-        profileButton.autoSetDimension(.width, toSize: 100)
-        profileButton.autoAlignAxis(.vertical, toSameAxisOf: view)
+        view.backgroundColor = Colors.white
     }
     
-    
+    func navBarSetUp(title: String, largeTitle: Bool) {
+        navigationItem.title = title
+        navigationController?.interactivePopGestureRecognizer?.isEnabled = false
+        
+        navigationItem.rightBarButtonItem?.tintColor =  Colors.primary
+        navigationItem.leftBarButtonItem?.tintColor =  Colors.primary
+        
+        if largeTitle {
+            navigationController?.navigationBar.prefersLargeTitles = true
+            navigationItem.largeTitleDisplayMode = .automatic
+        } else {
+            navigationController?.navigationBar.prefersLargeTitles = false
+            navigationItem.largeTitleDisplayMode = .never
+        }
+    }
     
     @objc private func openGallery() {
         let vc = UIImagePickerController()
@@ -111,6 +121,83 @@ class BaseViewController: UIViewController {
     
     func stopAnimation(){
         view.hideSkeleton(reloadDataAfter: false, transition: .crossDissolve(0.25))
+    }
+    
+    //MARK: Error Label
+    func showError(message: String, duration: TimeInterval = 1.0){
+        let errorLabel: UILabel = {
+            let lbl = UILabel()
+            lbl.text = message
+            lbl.font = AppFont.medium.font(size: 16)
+            lbl.textColor = Colors.white
+            lbl.textAlignment = .center
+            lbl.backgroundColor = Colors.red
+            lbl.layer.cornerRadius = 10
+            lbl.numberOfLines = 0
+            lbl.clipsToBounds = true
+            lbl.alpha = 1.0
+            return lbl
+        }()
+        
+        self.view.addSubview(errorLabel)
+        errorLabel.autoAlignAxis(toSuperviewAxis: .horizontal)
+        errorLabel.autoAlignAxis(toSuperviewAxis: .vertical)
+        
+        errorLabel.autoSetDimension(.height, toSize: 40)
+        errorLabel.autoSetDimension(.width, toSize: UIScreen.main.bounds.width - 16)
+        
+        UIView.animate(withDuration: 0.5, delay: duration, options: .curveEaseOut, animations: {
+            errorLabel.alpha = 0.0
+        }){ _ in
+            errorLabel.removeFromSuperview()
+        }
+    }
+    
+    //MARK: Alert Message
+    func showAlertActiob(message: String){
+        let alert = UIAlertController(title: "Warning", message: message, preferredStyle: .alert)
+        let cancelAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
+        alert.addAction(cancelAction)
+        present(alert, animated: true)
+        
+    }
+    
+    func showTextFieldAlert(title: String, message: String, placheHolderText: String,completion: @escaping (String) -> Void) {
+        
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        
+        alert.addTextField { txtField in
+            txtField.keyboardType = .emailAddress
+            txtField.placeholder = placheHolderText
+            txtField.autocapitalizationType = .none
+            txtField.autocorrectionType = .no
+        }
+        
+        let sendAction = UIAlertAction(title: "Send", style: .default) { _ in
+            if let text = alert.textFields?.first?.text, !text.isEmpty {
+                completion(text)
+            }
+        }
+        
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
+        
+        alert.addAction(sendAction)
+        alert.addAction(cancelAction)
+        
+        present(alert, animated: true)
+    }
+    
+    //MARK: Back Button
+    func backButton(vcName: String, target: Any? , action: Selector) -> UIButton {
+        let backBtn = UIButton()
+        backBtn.isUserInteractionEnabled = true
+        backBtn.setTitle(vcName, for: .normal)
+        backBtn.setImage(UIImage(systemName: "chevron.backward"), for: .normal)
+        backBtn.setTitleColor(Colors.primary, for: .normal)
+        backBtn.tintColor = Colors.primary
+        backBtn.translatesAutoresizingMaskIntoConstraints = false
+        backBtn.addTarget(target, action: action, for: .touchUpInside)
+        return backBtn
     }
     
 }

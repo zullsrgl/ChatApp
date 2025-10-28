@@ -36,21 +36,19 @@ class EditProfileViewController: BaseViewController {
         return txt
     }()
     
-    lazy var viewModel = EditProfileViewModel()
+    private lazy var viewModel = EditProfileViewModel()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         view.backgroundColor = Colors.bgWhite
-        navigationItem.title = "Edit Profile"
-        navigationController?.navigationBar.prefersLargeTitles = false
-        view.isSkeletonable = true
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Save", style: .plain, target: self, action: #selector(saveProfile))
+        
         let leftBarBtn = self.backButton(vcName: "Settings", target: self, action: #selector(backTapped))
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: leftBarBtn)
         
-        navigationItem.rightBarButtonItem?.tintColor =  Colors.primary
+        self.navBarSetUp(title: "Edit", largeTitle: false)
         
         viewModel.delegate = self
         viewModel.fetchUserData()
@@ -60,6 +58,11 @@ class EditProfileViewController: BaseViewController {
     
     private func setUpUI(){
         view.addSubview(profileButton)
+        profileButton.isHidden = false
+        profileButton.autoPinEdge(.top, to: .top, of: view, withOffset: 100)
+        profileButton.autoSetDimension(.height, toSize: 100)
+        profileButton.autoSetDimension(.width, toSize: 100)
+        profileButton.autoAlignAxis(.vertical, toSameAxisOf: view)
         
         view.addSubview(nameTextField)
         nameTextField.autoPinEdge(.top, to: .bottom, of: profileButton, withOffset: 12)
@@ -87,8 +90,6 @@ class EditProfileViewController: BaseViewController {
     @objc func backTapped () {
         navigationController?.popViewController(animated: true)
     }
-
-    
 }
 
 extension EditProfileViewController: EditProfileViewModelDelegate {

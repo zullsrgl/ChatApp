@@ -10,8 +10,10 @@ import UIKit
 
 class TabBarController: UITabBarController {
     override func viewDidLoad() {
-        let appearance = UITabBarAppearance()
         super.viewDidLoad()
+        
+        let appearance = UITabBarAppearance()
+    
         appearance.configureWithDefaultBackground()
         appearance.backgroundColor = .systemBackground
         appearance.backgroundEffect = UIBlurEffect(style: .light)

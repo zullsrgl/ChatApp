@@ -6,11 +6,11 @@
 //
 
 import PureLayout
+import Lottie
 
 class RegisterViewController: BaseViewController {
     
-    lazy var viewModel = RegisterViewModel()
-    private var showPassword: Bool = false
+    private lazy var viewModel = RegisterViewModel()
     
     private var nameTextField: PaddingTextField = {
         var txt = PaddingTextField()
@@ -57,7 +57,6 @@ class RegisterViewController: BaseViewController {
         btn.clipsToBounds = true
         btn.tintColor = Colors.secondary
         btn.isUserInteractionEnabled = true
-        btn.addTarget(self, action: #selector(toggaleEye), for: .touchUpInside)
         return btn
     }()
     
@@ -79,27 +78,32 @@ class RegisterViewController: BaseViewController {
         btn.backgroundColor = Colors.primary
         btn.setTitleColor(Colors.white, for: .normal)
         btn.layer.cornerRadius = 20
-        btn.addTarget(self, action: #selector(saveButtonClicked), for: .touchUpInside)
+        
         return btn
     }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = Colors.white
         
         let leftBarBtn = self.backButton(vcName: "Login", target: self, action: #selector(backTapped))
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: leftBarBtn)
         
         NotificationCenter.default.addObserver(self, selector: #selector(showEmailAnimation), name: .emailVerificationSent, object: nil)
-        
         viewModel.delegate = self
         
+        saveButton.addTarget(self, action: #selector(saveButtonClicked), for: .touchUpInside)
+        eyeIconButton.addTarget(self, action: #selector(toggleEye), for: .touchUpInside)
         setUpUI()
     }
     
     private func setUpUI(){
         
         view.addSubview(profileButton)
+        profileButton.isHidden = false
+        profileButton.autoPinEdge(.top, to: .top, of: view, withOffset: 100)
+        profileButton.autoSetDimension(.height, toSize: 100)
+        profileButton.autoSetDimension(.width, toSize: 100)
+        profileButton.autoAlignAxis(.vertical, toSameAxisOf: view)
         
         view.addSubview(nameTextField)
         nameTextField.autoPinEdge(.top, to: .bottom, of: profileButton, withOffset: 12)
@@ -146,23 +150,37 @@ class RegisterViewController: BaseViewController {
             self.showError(message: "Please enter your information")
             return
         }
+        view.endEditing(false)
+        
         viewModel.createUser(email: emailText, password: passwordText, phoneNumber: phoneNumber, name: nameText, image: image)
     }
     
     @objc private func showEmailAnimation(){
-        let vc = AnimationViewController()
-        vc.source = .register
-        navigationController?.pushViewController(vc, animated: true)
+        let animationView: LottieAnimationView?
+        animationView = .init(name: "email")
+        animationView?.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+        animationView?.center = view.center
+        animationView?.backgroundColor = Colors.primary
+        animationView?.contentMode = .scaleAspectFit
+        animationView?.loopMode = .loop
+        
+        guard let animation = animationView else { return }
+        
+        view.addSubview(animation)
+               
+        animationView?.play()
+        
     }
     
     @objc private func backTapped() {
         navigationController?.popViewController(animated: true)
     }
     
-    @objc private func toggaleEye(){
-        showPassword.toggle()
-        let iconName = showPassword ? "eye.slash": "eye"
-        passwordTextField.isSecureTextEntry = !showPassword
+    @objc private func toggleEye(){
+        let isSecure = passwordTextField.isSecureTextEntry
+        
+        let iconName = isSecure ? "eye.slash": "eye"
+        passwordTextField.isSecureTextEntry = !isSecure
         eyeIconButton.setImage(UIImage(systemName: iconName), for: .normal)
         
     }
@@ -175,8 +193,11 @@ class RegisterViewController: BaseViewController {
 extension RegisterViewController: RegisterViewModelDelegate {
     func userDidCreate(isSuccess: Bool, message: String) {
         if isSuccess{
-            navigationController?.popViewController(animated: true)
-        }else {
+            self.showEmailAnimation()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5){
+                self.navigationController?.popViewController(animated: true)
+            }
+        } else {
             self.showError(message: message)
         }
     }

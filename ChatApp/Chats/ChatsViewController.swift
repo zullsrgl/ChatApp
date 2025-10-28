@@ -6,10 +6,11 @@
 //
 import PureLayout
 
-class ChatsViewController: UIViewController {
+class ChatsViewController: BaseViewController {
     
     override func viewDidLoad(){
         super.viewDidLoad()
+        view.backgroundColor = Colors.bgWhite
     }
 }
 
