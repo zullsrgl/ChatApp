@@ -7,6 +7,8 @@ target 'ChatApp' do
   pod 'PureLayout'
   pod 'lottie-ios'
   pod 'Firebase/Auth'
+  pod 'Firebase/Database'
+  pod 'Firebase/Core'
   pod 'Firebase/Firestore'
   pod 'Kingfisher', '~> 8.0'
   pod 'SkeletonView'
