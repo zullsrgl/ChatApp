@@ -10,4 +10,5 @@ target 'ChatApp' do
   pod 'Firebase/Firestore'
   pod 'Kingfisher', '~> 8.0'
   pod 'SkeletonView'
+  pod 'MessageKit' 
 end

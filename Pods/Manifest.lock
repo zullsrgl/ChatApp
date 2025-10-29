@@ -1356,9 +1356,14 @@ PODS:
   - gRPC-Core/Interface (1.69.0)
   - gRPC-Core/Privacy (1.69.0)
   - GTMSessionFetcher/Core (5.0.0)
+  - InputBarAccessoryView (5.5.0):
+    - InputBarAccessoryView/Core (= 5.5.0)
+  - InputBarAccessoryView/Core (5.5.0)
   - Kingfisher (8.3.2)
   - leveldb-library (1.22.6)
   - lottie-ios (4.5.2)
+  - MessageKit (3.8.0):
+    - InputBarAccessoryView (~> 5.5.0)
   - nanopb (3.30910.0):
     - nanopb/decode (= 3.30910.0)
     - nanopb/encode (= 3.30910.0)
@@ -1373,6 +1378,7 @@ DEPENDENCIES:
   - Firebase/Firestore
   - Kingfisher (~> 8.0)
   - lottie-ios
+  - MessageKit
   - PureLayout
   - SkeletonView
 
@@ -1394,9 +1400,11 @@ SPEC REPOS:
     - "gRPC-C++"
     - gRPC-Core
     - GTMSessionFetcher
+    - InputBarAccessoryView
     - Kingfisher
     - leveldb-library
     - lottie-ios
+    - MessageKit
     - nanopb
     - PureLayout
     - RecaptchaInterop
@@ -1419,14 +1427,16 @@ SPEC CHECKSUMS:
   "gRPC-C++": cc207623316fb041a7a3e774c252cf68a058b9e8
   gRPC-Core: 860978b7db482de8b4f5e10677216309b5ff6330
   GTMSessionFetcher: 02d6e866e90bc236f48a703a041dfe43e6221a29
+  InputBarAccessoryView: 1d7b0a672b36e370f01f264b3907ef39d03328e3
   Kingfisher: 0621d0ac0c78fecb19f6dc5303bde2b52abaf2f5
   leveldb-library: cc8b8f8e013647a295ad3f8cd2ddf49a6f19be19
   lottie-ios: 96784afc26ea031d3e2b6cae342a4b8915072489
+  MessageKit: a1ba0c69ebead94029867853eb44dd05b9b3f453
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
   PureLayout: 5fb5e5429519627d60d079ccb1eaa7265ce7cf88
   RecaptchaInterop: 11e0b637842dfb48308d242afc3f448062325aba
   SkeletonView: 5a050f6411e697abd4cda0a8d767013399dccd69
 
-PODFILE CHECKSUM: c0eeaf708526f6bb3578488c75b791ba0b0f35f5
+PODFILE CHECKSUM: c15a12e5464d9bd6db617049fc591831feb48b94
 
 COCOAPODS: 1.16.2

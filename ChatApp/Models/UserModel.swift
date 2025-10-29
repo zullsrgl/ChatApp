@@ -5,7 +5,7 @@
 //  Created by Zülal Sarıoğlu on 21.10.2025.
 //
 
-struct User {
+struct User: Decodable {
     let name: String
     let uid: String
     let email : String

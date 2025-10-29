@@ -14,6 +14,7 @@ class AuthManager {
     static let shared = AuthManager()
     private let auth = Auth.auth()
     private var verificationId: String?
+    private let db = Firestore.firestore()
     
     func createUser(email: String, password: String, phoneNumber: String, name: String, completion: @escaping (Bool, String, String?) -> Void) {
         auth.createUser(withEmail: email, password: password) { authResult, error in
@@ -34,14 +35,13 @@ class AuthManager {
                 completion(false, message, nil)
                 return
             }
-
+            
             guard let user = authResult?.user else {
                 completion(false, "User could not be created.", nil)
                 return
             }
-
-            let db = Firestore.firestore()
-            db.collection("user").document(user.uid).setData([
+            
+            self.db.collection("user").document(user.uid).setData([
                 "name": name,
                 "phone": phoneNumber,
                 "email": email,
@@ -64,10 +64,9 @@ class AuthManager {
             }
         }
     }
-
+    
     
     func checkEmailExists(email: String, completion: @escaping (Bool) -> Void){
-        let db = Firestore.firestore()
         db.collection("user").whereField("email", isEqualTo: email).getDocuments { snapshot, error in
             if let error = error {
                 print("Firestore error: \(error)")
@@ -131,7 +130,6 @@ class AuthManager {
     }
     
     func saveProfileImage(userId: String, imageURL: String, completion: @escaping(Bool) -> Void){
-        let db = Firestore.firestore()
         db.collection("user").document(userId).updateData([
             "profileImageUrl": imageURL
         ]){ error in
@@ -151,7 +149,6 @@ class AuthManager {
             return
         }
         
-        let db = Firestore.firestore()
         db.collection("user").document(userId).getDocument{ snapshot, error in
             
             if let error = error {
@@ -175,34 +172,60 @@ class AuthManager {
             
         }
     }
-
+    
     func updateUser(imageUrl: String?, fullName: String?, phone: String?, completion: @escaping (String?) -> Void) {
-            guard let userId = Auth.auth().currentUser?.uid else {
+        guard let userId = Auth.auth().currentUser?.uid else {
+            completion(nil)
+            return
+        }
+        
+        var updateData: [String: Any] = [:]
+        
+        if let name = fullName, !name.isEmpty {
+            updateData["name"] = name
+        }
+        if let phone = phone, !phone.isEmpty {
+            updateData["phone"] = phone
+        }
+        if let imageUrl = imageUrl, !imageUrl.isEmpty {
+            updateData["profileImageUrl"] = imageUrl
+        }
+        
+        
+        db.collection("user").document(userId).updateData(updateData) { error in
+            if let error = error {
+                print("Firestore update hatası: \(error.localizedDescription)")
                 completion(nil)
+            } else {
+                completion(userId)
+                
+            }
+        }
+    }
+    func fetchAllUser(completion: @escaping ([User]?, Error?) -> Void){
+        
+        db.collection("user").getDocuments { (snapshot, error) in
+            if let error = error {
+                completion(nil, error)
+                return
+            }
+            guard let documents = snapshot?.documents else {
+                completion(nil, nil)
                 return
             }
             
-            var updateData: [String: Any] = [:]
-            
-            if let name = fullName, !name.isEmpty {
-                updateData["name"] = name
-            }
-            if let phone = phone, !phone.isEmpty {
-                updateData["phone"] = phone
-            }
-            if let imageUrl = imageUrl, !imageUrl.isEmpty {
-                updateData["profileImageUrl"] = imageUrl
+            var users = documents.compactMap{ documents in
+                
+                try?  documents.data(as: User.self)
+                
             }
             
-            let db = Firestore.firestore()
-            db.collection("user").document(userId).updateData(updateData) { error in
-                if let error = error {
-                    print("Firestore update hatası: \(error.localizedDescription)")
-                    completion(nil)
-                } else {
-                    completion(userId)
-                    
-                }
+            if let currentUserID = Auth.auth().currentUser?.uid,
+               let index = users.firstIndex(where: { $0.uid == currentUserID }) {
+                users.remove(at: index)
             }
+            completion(users, nil)
         }
+        
+    }
 }
