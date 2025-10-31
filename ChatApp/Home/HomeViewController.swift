@@ -9,7 +9,7 @@ import PureLayout
 class HomeViewController: BaseViewController {
     
     private let homeTableView = HomeTableView()
-   
+    
     
     override func viewDidLoad(){
         super.viewDidLoad()
@@ -23,7 +23,6 @@ class HomeViewController: BaseViewController {
         navigationItem.leftBarButtonItem?.tintColor = Colors.primary
         
         homeTableView.delegate = self
-       
         setUpUI()
     }
     
@@ -51,9 +50,11 @@ extension HomeViewController: HomeTableViewDelegate {
     }
 }
 
-extension HomeViewController: ConversationViewControllerDelegate {
-    func teppedNewConversation() {
-       let vc = ChatsViewController()
+extension HomeViewController: ConversationViewControllerDelegate{
+    func teppedNewConversation(userID: String) {
+        let vc = ChatsViewController()
+        vc.userID = userID
+        vc.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(vc, animated: true)
     }
 }

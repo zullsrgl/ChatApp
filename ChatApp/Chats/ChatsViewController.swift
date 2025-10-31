@@ -3,39 +3,33 @@
 //  ChatApp
 //
 //  Created by Zülal Sarıoğlu on 22.09.2025.
-//
+
 import PureLayout
 import MessageKit
+import InputBarAccessoryView
 
 class ChatsViewController: MessagesViewController {
     
     var userID: String? = nil
     
     private var messages = [Message]()
-    private let selfSender = Sender(photoURL: "", senderId: "1", displayName: "Zülal Sarıoğlu")
+    private var selfSender: Sender? = nil
+    
+    private lazy var viewModel = ChatsViewModel()
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        self.becomeFirstResponder()
+    }
     
     override func viewDidLoad(){
         super.viewDidLoad()
-        //TODO: Delete mock data
-        messages.append(Message(sender: selfSender,
-                                messageId: "1",
-                                sentDate: Date(),
-                                kind: .text("hi ")))
-        
-        messages.append(Message(sender: selfSender,
-                                messageId: "1",
-                                sentDate: Date(),
-                                kind: .text("I'm zulal")))
-        
-        messages.append(Message(sender: selfSender,
-                                messageId: "1",
-                                sentDate: Date(),
-                                kind: .text("Did you remember me. forom school")))
         
         messagesCollectionView.messagesDataSource = self
         messagesCollectionView.messagesLayoutDelegate = self
         messagesCollectionView.messagesDisplayDelegate = self
-        
+        messageInputBar.delegate = self
+  
         let backButton = UIButton(type: .system)
         backButton.setImage(UIImage(systemName: "chevron.backward"), for: .normal)
         backButton.setTitle("Home", for: .normal)
@@ -56,7 +50,7 @@ class ChatsViewController: MessagesViewController {
 
 extension ChatsViewController: MessagesDataSource, MessagesLayoutDelegate, MessagesDisplayDelegate {
     func currentSender() -> any MessageKit.SenderType {
-        return selfSender
+        return viewModel.currentSender ?? Sender(photoURL: "", senderId: "unknown", displayName: "Unknown")
     }
     
     func messageForItem(at indexPath: IndexPath, in messagesCollectionView: MessageKit.MessagesCollectionView) -> any MessageKit.MessageType {
@@ -65,5 +59,20 @@ extension ChatsViewController: MessagesDataSource, MessagesLayoutDelegate, Messa
     
     func numberOfSections(in messagesCollectionView: MessageKit.MessagesCollectionView) -> Int {
         return messages.count
+    }
+}
+
+extension ChatsViewController: InputBarAccessoryViewDelegate {
+    func inputBar(_ inputBar: InputBarAccessoryView, didPressSendButtonWith text: String) {
+        print("input bar text: \(text)")
+        //TODO: send Message
+        guard !text.trimmingCharacters(in: .whitespaces).isEmpty else { return}
+        
+        
+        guard let userID = userID, !userID.isEmpty else { return}
+        viewModel.chatExists(userID: userID, text: text)
+        messagesCollectionView.reloadData()
+        messagesCollectionView.scrollToLastItem()
+        inputBar.inputTextView.text = ""
     }
 }

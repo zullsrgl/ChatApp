@@ -8,7 +8,7 @@ import PureLayout
 
 
 protocol ConversationViewControllerDelegate: AnyObject {
-    func teppedNewConversation()
+    func teppedNewConversation(userID: String)
 }
 
 
@@ -103,7 +103,8 @@ extension ConverstaionViewController: UITableViewDelegate, UITableViewDataSource
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        delegate?.teppedNewConversation()
+        guard let userId = filteredUsers?[indexPath.row].uid else { return}
+        delegate?.teppedNewConversation(userID: userId)
         self.dismissSelf()
     }
 }

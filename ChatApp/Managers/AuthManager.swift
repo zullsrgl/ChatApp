@@ -9,12 +9,14 @@ import Foundation
 import FirebaseAuth
 import FirebaseFirestore
 import Lottie
+import FirebaseDatabase
 
 class AuthManager {
     static let shared = AuthManager()
     private let auth = Auth.auth()
     private var verificationId: String?
     private let db = Firestore.firestore()
+    private let realTimeDb = Database.database().reference()
     
     func createUser(email: String, password: String, phoneNumber: String, name: String, completion: @escaping (Bool, String, String?) -> Void) {
         auth.createUser(withEmail: email, password: password) { authResult, error in
@@ -227,5 +229,43 @@ class AuthManager {
             completion(users, nil)
         }
         
+    }
+    
+    func checkIfChatExists(otherUserId: String, completion: @escaping(String?) -> Void){
+        guard let currentUserId = auth.currentUser?.uid else { return }
+        let chatId = [currentUserId, otherUserId].sorted().joined(separator: "_")
+        let chatRef = Database.database().reference().child("chats").child(chatId)
+        
+        chatRef.observeSingleEvent(of: .value) { snapshot in
+            if snapshot.exists() {
+                completion(chatId)
+            }else {
+                completion(nil)
+            }
+        }
+    }
+    
+    func createNewChat(otherUserId: String){
+        guard let currentUserId = auth.currentUser?.uid else { return }
+        let chatId = [currentUserId, otherUserId].sorted().joined(separator: "_")
+        let chatRef = Database.database().reference().child("chats").child(chatId)
+        let chatData: [String: Any] = [
+            "participants": [currentUserId, otherUserId],
+            "createdAt": Date().timeIntervalSince1970
+        ]
+        
+        chatRef.setValue(chatData) { error, _ in
+            if error == nil {
+                print("Yeni sohbet oluşturuldu: \(chatId)")
+            }
+        }
+    }
+    
+    func sendMessage(chatId: String, message: Message, completion: ((Error?) -> Void)? = nil) {
+        let messageData = message.dictionary
+        realTimeDb.child("chats").child(chatId).child(message.messageId).setValue(messageData) { error, _  in
+            completion?(error)
+            print("firts message error: \(String(describing: error))")
+        }
     }
 }
