@@ -11,6 +11,7 @@ protocol ConverstaionViewModelDelegate: AnyObject {
 
 final class ConverstaionViewModel {
     weak var delegate: ConverstaionViewModelDelegate?
+    var currentSender: String?
     
     func getAllUser(){
         AuthManager.shared.fetchAllUser { users, error in
@@ -19,6 +20,21 @@ final class ConverstaionViewModel {
             
             self.delegate?.usersFetched(users: users)
             
+        }
+    }
+    
+    func existsChat(with otherUserId: String){
+        AuthManager.shared.checkIfChatExists(otherUserId: otherUserId){ existingChatId in
+           AuthManager.shared.currentUser{ currentUser in
+               guard let user = currentUser else { return }
+               let selfSender = user.uid
+               self.currentSender = selfSender
+               if let chatId = existingChatId {
+                  print("chat already exists")
+               } else {
+                   AuthManager.shared.createNewChat(otherUserId: otherUserId)
+               }
+            }
         }
     }
 }

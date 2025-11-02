@@ -12,20 +12,18 @@ protocol ChatsViewModelDelegate: AnyObject {
 }
 
 final class ChatsViewModel {
-    var currentSender: Sender?
+    var currentSender: String?
     
     weak var delegate: ChatsViewModelDelegate?
 
     func chatExists(userID: String, text: String) {
         AuthManager.shared.checkIfChatExists(otherUserId: userID) { existingChatId in
             AuthManager.shared.currentUser { user in
-                guard let user = user, let photoUrl = user.profileImageUrl else { return }
-
-                let selfSender = Sender(photoURL: photoUrl, senderId: user.uid, displayName: user.name)
+                guard let user = user else { return }
+                let selfSender = user.uid
                 self.currentSender = selfSender
-
                 if let chatId = existingChatId {
-                    self.sendMessage(chatId: chatId, text: text, sender: selfSender)
+                    self.sendMessage(chatId: chatId, text: text, senderId: selfSender)
                 } else {
                     AuthManager.shared.createNewChat(otherUserId: userID)
                 }
@@ -33,8 +31,8 @@ final class ChatsViewModel {
         }
     }
 
-    func sendMessage(chatId: String, text: String, sender: Sender, completion: ((Error?) -> Void)? = nil) {
-        let message = Message(sender: sender, messageId: UUID().uuidString, sentDate: Date(), kind: .text(text))
+    func sendMessage(chatId: String, text: String, senderId: String, completion: ((Error?) -> Void)? = nil) {
+        let message = Message(messageId: UUID().uuidString, senderId: senderId, text: text, timestamp: Date().timeIntervalSince1970, isRead: false)
 
         AuthManager.shared.sendMessage(chatId: chatId, message: message) { error in
             completion?(error)

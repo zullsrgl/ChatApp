@@ -13,7 +13,6 @@ class ChatsViewController: BaseViewController {
     var userID: String? = nil
     
     private var messages = [Message]()
-    private var selfSender: Sender? = nil
     
     private lazy var viewModel = ChatsViewModel()
     private var tableView = ChatTableView()
@@ -38,7 +37,7 @@ class ChatsViewController: BaseViewController {
         return btn
     }()
     
-    private let textView: UITextView = {
+    private let messageTextView: UITextView = {
         let txtView = UITextView()
         txtView.isScrollEnabled = false
         txtView.isUserInteractionEnabled = true
@@ -55,6 +54,7 @@ class ChatsViewController: BaseViewController {
         btn.setTitle("Send", for: .normal)
         btn.tintColor = Colors.secondary
         btn.titleLabel?.font = .boldSystemFont(ofSize: 16)
+        
         return btn
     }()
     
@@ -71,6 +71,8 @@ class ChatsViewController: BaseViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
         
+        sendButton.addTarget(self, action: #selector(tappedSentButton), for: .touchUpInside)
+        
         if #available(iOS 18.0, *) {
             tabBarController?.isTabBarHidden = true
         } else {
@@ -85,9 +87,10 @@ class ChatsViewController: BaseViewController {
         guard let userID = userID else { return }
         viewModel.getUser(with: userID)
         
-        let tap = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
-        tap.cancelsTouchesInView = false
-        self.view.addGestureRecognizer(tap)
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        tapGesture.delegate = self
+        self.view.addGestureRecognizer(tapGesture)
         self.navBarAppearance()
         setUpUI()
         
@@ -95,6 +98,18 @@ class ChatsViewController: BaseViewController {
     
     @objc private func tappedBack(){
         navigationController?.popViewController(animated: true)
+    }
+    
+    @objc func tappedSentButton() {
+        
+        guard let text = messageTextView.text,
+              let userID = userID, !text.isEmpty
+        else {
+            self.showError(message: "please enter a message")
+            return
+        }
+        viewModel.chatExists(userID: userID, text: text)
+        messageTextView.text = ""
     }
     
     private func setUpUI(){
@@ -119,11 +134,11 @@ class ChatsViewController: BaseViewController {
         sendButton.autoPinEdge(.top, to: .top, of: stackContainerView)
         sendButton.autoPinEdge(.bottom, to: .bottom, of: stackContainerView)
         
-        stackContainerView.addSubview(textView)
-        textView.autoPinEdge(.left, to: .right, of: addDocButton)
-        textView.autoPinEdge(.top, to: .top, of: stackContainerView)
-        textView.autoPinEdge(.bottom, to: .bottom, of: stackContainerView)
-        textView.autoPinEdge(.right, to: .left, of: sendButton, withOffset: -8)
+        stackContainerView.addSubview(messageTextView)
+        messageTextView.autoPinEdge(.left, to: .right, of: addDocButton)
+        messageTextView.autoPinEdge(.top, to: .top, of: stackContainerView)
+        messageTextView.autoPinEdge(.bottom, to: .bottom, of: stackContainerView)
+        messageTextView.autoPinEdge(.right, to: .left, of: sendButton, withOffset: -8)
         
         view.addSubview(tableView)
         tableView.autoPinEdge(.top, to: .top, of: view, withOffset: 100)
@@ -217,4 +232,10 @@ extension ChatsViewController {
         navigationItem.titleView = stackContainerView
         stackContainerView.transform = CGAffineTransform(translationX: -60, y: 0)
     }
+}
+
+extension ChatsViewController: UIGestureRecognizerDelegate {
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+         return !(touch.view is UIButton || touch.view is UITextField)
+     }
 }

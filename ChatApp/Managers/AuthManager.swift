@@ -262,7 +262,15 @@ class AuthManager {
     }
     
     func sendMessage(chatId: String, message: Message, completion: ((Error?) -> Void)? = nil) {
-        let messageData = message.dictionary
+        
+        let messageData: [String: Any] = [
+            "messageId": message.messageId,
+               "senderId": message.senderId,
+               "text": message.text,
+               "timestamp": message.timestamp,
+               "isRead": message.isRead
+        ]
+        
         realTimeDb.child("chats").child(chatId).child(message.messageId).setValue(messageData) { error, _  in
             completion?(error)
             print("firts message error: \(String(describing: error))")

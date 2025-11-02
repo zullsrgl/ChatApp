@@ -102,6 +102,8 @@ extension DirectoryViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let userId = filteredUsers?[indexPath.row].uid else { return}
+        viewModel.existsChat(with: userId)
+        
         delegate?.teppedNewConversation(userID: userId)
         self.dismissSelf()
     }
