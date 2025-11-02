@@ -256,7 +256,7 @@ class AuthManager {
         
         chatRef.setValue(chatData) { error, _ in
             if error == nil {
-                print("Yeni sohbet oluşturuldu: \(chatId)")
+                print("new chat room has been created with id: \(chatId)")
             }
         }
     }
@@ -266,6 +266,24 @@ class AuthManager {
         realTimeDb.child("chats").child(chatId).child(message.messageId).setValue(messageData) { error, _  in
             completion?(error)
             print("firts message error: \(String(describing: error))")
+        }
+    }
+    
+    func getUser(with userID: String, completion: @escaping(User) -> Void){
+        db.collection("user").document(userID).getDocument { document, error in
+            if let error = error {
+                print("manager class error: \(error)")
+                return
+            }
+            
+            if let document = document, document.exists{
+                do {
+                    let user = try document.data(as: User.self)
+                    completion(user)
+                } catch {
+                    print("manager class error:")
+                }
+            }
         }
     }
 }

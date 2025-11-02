@@ -12,8 +12,8 @@ class RegisterViewController: BaseViewController {
     
     private lazy var viewModel = RegisterViewModel()
     
-    private var nameTextField: PaddingTextField = {
-        var txt = PaddingTextField()
+    private var nameTextField: UITextField = {
+        var txt = UITextField()
         txt.textColor = Colors.darko
         txt.font = AppFont.regular.font(size: 16)
         txt.layer.cornerRadius = 20
@@ -23,8 +23,8 @@ class RegisterViewController: BaseViewController {
         return txt
     }()
     
-    private var emailTextField: PaddingTextField = {
-        var txt = PaddingTextField()
+    private var emailTextField: UITextField = {
+        var txt = UITextField()
         txt.textColor = Colors.darko
         txt.font = AppFont.regular.font(size: 16)
         txt.layer.cornerRadius = 20
@@ -37,8 +37,8 @@ class RegisterViewController: BaseViewController {
         return txt
     }()
     
-    private var passwordTextField: PaddingTextField = {
-        var txt = PaddingTextField()
+    private var passwordTextField: UITextField = {
+        var txt = UITextField()
         txt.textColor = Colors.darko
         txt.font = AppFont.regular.font(size: 16)
         txt.layer.cornerRadius = 20
@@ -60,8 +60,8 @@ class RegisterViewController: BaseViewController {
         return btn
     }()
     
-    private var phoneTextField: PaddingTextField = {
-        var txt = PaddingTextField()
+    private var phoneTextField: UITextField = {
+        var txt = UITextField()
         txt.textColor = Colors.darko
         txt.font = AppFont.regular.font(size: 16)
         txt.layer.cornerRadius = 20
@@ -106,18 +106,21 @@ class RegisterViewController: BaseViewController {
         profileButton.autoAlignAxis(.vertical, toSameAxisOf: view)
         
         view.addSubview(nameTextField)
+        nameTextField.setLeftPadding(12)
         nameTextField.autoPinEdge(.top, to: .bottom, of: profileButton, withOffset: 12)
         nameTextField.autoPinEdge(.left, to: .left, of: view, withOffset: 20)
         nameTextField.autoPinEdge(.right, to: .right, of: view, withOffset: -20)
         nameTextField.autoSetDimension(.height, toSize: 40)
         
         view.addSubview(emailTextField)
+        emailTextField.setLeftPadding(12)
         emailTextField.autoPinEdge(.top, to: .bottom, of: nameTextField, withOffset: 12)
         emailTextField.autoPinEdge(.left, to: .left, of: view, withOffset: 20)
         emailTextField.autoPinEdge(.right, to: .right, of: view, withOffset: -20)
         emailTextField.autoSetDimension(.height, toSize: 40)
         
         view.addSubview(passwordTextField)
+        passwordTextField.setLeftPadding(12)
         passwordTextField.autoPinEdge(.top, to: .bottom, of: emailTextField, withOffset: 12)
         passwordTextField.autoPinEdge(.left, to: .left, of: view, withOffset: 20)
         passwordTextField.autoPinEdge(.right, to: .right, of: view, withOffset: -20)
@@ -127,6 +130,7 @@ class RegisterViewController: BaseViewController {
         passwordTextField.rightViewMode = .always
         
         view.addSubview(phoneTextField)
+        phoneTextField.setLeftPadding(12)
         phoneTextField.autoPinEdge(.top, to: .bottom, of: passwordTextField, withOffset: 12)
         phoneTextField.autoPinEdge(.left, to: .left, of: view, withOffset: 20)
         phoneTextField.autoPinEdge(.right, to: .right, of: view, withOffset: -20)
@@ -150,8 +154,8 @@ class RegisterViewController: BaseViewController {
             self.showError(message: "Please enter your information")
             return
         }
-        view.endEditing(false)
         
+        view.endEditing(false)
         viewModel.createUser(email: emailText, password: passwordText, phoneNumber: phoneNumber, name: nameText, image: image)
     }
     
@@ -167,7 +171,7 @@ class RegisterViewController: BaseViewController {
         guard let animation = animationView else { return }
         
         view.addSubview(animation)
-               
+        
         animationView?.play()
         
     }

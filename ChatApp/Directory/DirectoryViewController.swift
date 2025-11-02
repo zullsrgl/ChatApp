@@ -6,15 +6,13 @@
 //
 import PureLayout
 
-
-protocol ConversationViewControllerDelegate: AnyObject {
+protocol DirectoryViewControllerDelegate: AnyObject {
     func teppedNewConversation(userID: String)
 }
 
-
-class ConverstaionViewController: BaseViewController{
+class DirectoryViewController: BaseViewController{
     
-    weak var delegate: ConversationViewControllerDelegate?
+    weak var delegate: DirectoryViewControllerDelegate?
     
     private var users: [User]? = nil
     private var filteredUsers: [User]? = nil
@@ -59,7 +57,7 @@ class ConverstaionViewController: BaseViewController{
     }
 }
 
-extension ConverstaionViewController: UISearchBarDelegate{
+extension DirectoryViewController: UISearchBarDelegate{
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         guard let text = searchBar.text else { return}
@@ -75,7 +73,7 @@ extension ConverstaionViewController: UISearchBarDelegate{
     
 }
 
-extension ConverstaionViewController: ConverstaionViewModelDelegate {
+extension DirectoryViewController: ConverstaionViewModelDelegate {
     func usersFetched(users: [User]) {
         self.users = users
         filteredUsers = users
@@ -86,7 +84,7 @@ extension ConverstaionViewController: ConverstaionViewModelDelegate {
 }
 
 
-extension ConverstaionViewController: UITableViewDelegate, UITableViewDataSource {
+extension DirectoryViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         guard let users = filteredUsers, users.count > 0  else {
             return 0
@@ -95,7 +93,7 @@ extension ConverstaionViewController: UITableViewDelegate, UITableViewDataSource
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "cell") as! UITableViewCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: "cell")!
         
         guard let userName = filteredUsers?[indexPath.row].name else { return cell}
         cell.textLabel?.text = userName

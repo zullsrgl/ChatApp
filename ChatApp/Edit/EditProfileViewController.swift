@@ -10,8 +10,8 @@ import SkeletonView
 
 class EditProfileViewController: BaseViewController {
 
-    private var nameTextField: PaddingTextField = {
-        var txt = PaddingTextField()
+    private var nameTextField: UITextField = {
+        var txt = UITextField()
         txt.textColor = Colors.darko
         txt.backgroundColor = Colors.white
         txt.font = AppFont.regular.font(size: 16)
@@ -23,8 +23,8 @@ class EditProfileViewController: BaseViewController {
         return txt
     }()
     
-    private var phoneTextField: PaddingTextField = {
-        var txt = PaddingTextField()
+    private var phoneTextField: UITextField = {
+        var txt = UITextField()
         txt.textColor = Colors.darko
         txt.backgroundColor = Colors.white
         txt.font = AppFont.regular.font(size: 16)
@@ -65,12 +65,14 @@ class EditProfileViewController: BaseViewController {
         profileButton.autoAlignAxis(.vertical, toSameAxisOf: view)
         
         view.addSubview(nameTextField)
+        nameTextField.setLeftPadding(12)
         nameTextField.autoPinEdge(.top, to: .bottom, of: profileButton, withOffset: 12)
         nameTextField.autoPinEdge(.left, to: .left, of: view, withOffset: 20)
         nameTextField.autoPinEdge(.right, to: .right, of: view, withOffset: -20)
         nameTextField.autoSetDimension(.height, toSize: 40)
         
         view.addSubview(phoneTextField)
+        phoneTextField.setLeftPadding(12)
         phoneTextField.autoPinEdge(.top, to: .bottom, of: nameTextField, withOffset: 12)
         phoneTextField.autoPinEdge(.left, to: .left, of: view, withOffset: 20)
         phoneTextField.autoPinEdge(.right, to: .right, of: view, withOffset: -20)

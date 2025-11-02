@@ -32,7 +32,7 @@ class HomeViewController: BaseViewController {
     }
     
     @objc private func newMessageButton(){
-        let vc = ConverstaionViewController()
+        let vc = DirectoryViewController()
         vc.delegate = self
         let navVC = UINavigationController(rootViewController: vc)
         present(navVC, animated: true)
@@ -46,11 +46,12 @@ class HomeViewController: BaseViewController {
 extension HomeViewController: HomeTableViewDelegate {
     func cellDidSelect() {
         let vc = ChatsViewController()
+        vc.userID = "uYUdaFORQ3h8qMPjtK3ArLdDDua2"
         navigationController?.pushViewController(vc, animated: true)
     }
 }
 
-extension HomeViewController: ConversationViewControllerDelegate{
+extension HomeViewController: DirectoryViewControllerDelegate{
     func teppedNewConversation(userID: String) {
         let vc = ChatsViewController()
         vc.userID = userID

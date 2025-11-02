@@ -56,8 +56,8 @@ class LoginViewController: BaseViewController {
         return lbl
     }()
     
-    private var emailTextField: PaddingTextField = {
-        var txt = PaddingTextField()
+    private var emailTextField: UITextField = {
+        var txt = UITextField()
         txt.textColor = Colors.darko
         txt.font = AppFont.regular.font(size: 16)
         txt.layer.cornerRadius = 20
@@ -70,8 +70,8 @@ class LoginViewController: BaseViewController {
         return txt
     }()
     
-    private var passwordTextField: PaddingTextField = {
-        var txt = PaddingTextField()
+    private var passwordTextField: UITextField = {
+        var txt = UITextField()
         txt.textColor = Colors.darko
         txt.font = AppFont.regular.font(size: 16)
         txt.layer.cornerRadius = 20
@@ -160,9 +160,11 @@ class LoginViewController: BaseViewController {
         explanationLabel.autoSetDimension(.height, toSize: 60)
         
         stackContainerView.addArrangedSubview(emailTextField)
+        emailTextField.setLeftPadding(12)
         emailTextField.autoSetDimension(.height, toSize: 40)
         
         stackContainerView.addArrangedSubview(passwordTextField)
+        passwordTextField.setLeftPadding(12)
         passwordTextField.autoSetDimension(.height, toSize: 40)
         passwordTextField.rightView = eyeIconButton
         passwordTextField.rightViewMode = .always

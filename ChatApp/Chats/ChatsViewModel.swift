@@ -7,8 +7,14 @@
 
 import Foundation
 
+protocol ChatsViewModelDelegate: AnyObject {
+    func userFetched(user: User)
+}
+
 final class ChatsViewModel {
     var currentSender: Sender?
+    
+    weak var delegate: ChatsViewModelDelegate?
 
     func chatExists(userID: String, text: String) {
         AuthManager.shared.checkIfChatExists(otherUserId: userID) { existingChatId in
@@ -33,6 +39,12 @@ final class ChatsViewModel {
         AuthManager.shared.sendMessage(chatId: chatId, message: message) { error in
             completion?(error)
             print("View model first message error: \(String(describing: error))")
+        }
+    }
+    
+    func getUser(with userID: String) {
+        AuthManager.shared.getUser(with: userID){ user in
+            self.delegate?.userFetched(user: user)
         }
     }
 }

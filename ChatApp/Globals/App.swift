@@ -22,26 +22,6 @@ enum AppFont: String {
     }
 }
 
-
-class PaddingTextField: UITextField {
-    var textpadding = UIEdgeInsets(top: 0, left: 8, bottom: 0, right: 0)
-    override func textRect(forBounds bounds: CGRect) -> CGRect {
-        return bounds.inset(by: textpadding)
-    }
-    override func editingRect(forBounds bounds: CGRect) -> CGRect {
-        return bounds.inset(by: textpadding)
-    }
-    override func placeholderRect(forBounds bounds: CGRect) -> CGRect {
-        return bounds.inset(by: textpadding)
-    }
-    override func rightViewRect(forBounds bounds: CGRect) -> CGRect {
-        var rect = super.rightViewRect(forBounds: bounds)
-        rect.origin.x -= 8
-        return rect
-    }
-}
-
-
 class BaseViewController: UIViewController {
     
     lazy var profileButton: UIButton = {
@@ -64,7 +44,7 @@ class BaseViewController: UIViewController {
             self?.openGallery()
         }
         let cancel = UIAction(title: "Cancel", image: UIImage(systemName: "x.circle")) { _ in
-           
+            
         }
         
         btn.menu = UIMenu(title: "", children: [camera, gallery, cancel])
@@ -93,7 +73,7 @@ class BaseViewController: UIViewController {
             navigationItem.largeTitleDisplayMode = .never
         }
     }
-    
+    //MARK: open gallery
     @objc private func openGallery() {
         let vc = UIImagePickerController()
         vc.sourceType = .photoLibrary
@@ -101,7 +81,7 @@ class BaseViewController: UIViewController {
         vc.allowsEditing = true
         self.present(vc, animated: true)
     }
-    
+    //MARK: open Camera
     @objc private func openCamera() {
         guard UIImagePickerController.isSourceTypeAvailable(.camera) else {
             return
@@ -111,14 +91,14 @@ class BaseViewController: UIViewController {
         vc.delegate = self
         present(vc, animated: true)
     }
-    
+    //MARK: start Animation
     func startAnimation(){
         view.showAnimatedGradientSkeleton(
             usingGradient: .init(baseColor: Colors.gray, secondaryColor: Colors.lightGray),
             animation: GradientDirection.leftRight.slidingAnimation()
         )
     }
-    
+    //MARK: stop Animation
     func stopAnimation(){
         view.hideSkeleton(reloadDataAfter: false, transition: .crossDissolve(0.25))
     }
@@ -161,9 +141,8 @@ class BaseViewController: UIViewController {
         present(alert, animated: true)
         
     }
-    
+    //MARK: alert message with text field
     func showTextFieldAlert(title: String, message: String, placheHolderText: String,completion: @escaping (String) -> Void) {
-        
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         
         alert.addTextField { txtField in
