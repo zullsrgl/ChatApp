@@ -11,6 +11,6 @@ struct Message: Codable {
     let messageId: String
     let senderId: String
     let text: String
-    let timestamp: Double
+    let timestamp: String
     var isRead: Bool
 }

@@ -32,7 +32,11 @@ final class ChatsViewModel {
     }
 
     func sendMessage(chatId: String, text: String, senderId: String, completion: ((Error?) -> Void)? = nil) {
-        let message = Message(messageId: UUID().uuidString, senderId: senderId, text: text, timestamp: Date().timeIntervalSince1970, isRead: false)
+        
+        let now = Date()
+        let dateString = now.formattedString
+        
+        let message = Message(messageId: UUID().uuidString, senderId: senderId, text: text, timestamp: dateString, isRead: false)
 
         AuthManager.shared.sendMessage(chatId: chatId, message: message) { error in
             completion?(error)
