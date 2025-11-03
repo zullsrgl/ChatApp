@@ -9,6 +9,7 @@ import Foundation
 
 protocol ChatsViewModelDelegate: AnyObject {
     func userFetched(user: User)
+    func oldMessagesFetched(messages: [Message])
 }
 
 final class ChatsViewModel {
@@ -16,22 +17,7 @@ final class ChatsViewModel {
     
     weak var delegate: ChatsViewModelDelegate?
 
-    func chatExists(userID: String, text: String) {
-        AuthManager.shared.checkIfChatExists(otherUserId: userID) { existingChatId in
-            AuthManager.shared.currentUser { user in
-                guard let user = user else { return }
-                let selfSender = user.uid
-                self.currentSender = selfSender
-                if let chatId = existingChatId {
-                    self.sendMessage(chatId: chatId, text: text, senderId: selfSender)
-                } else {
-                    AuthManager.shared.createNewChat(otherUserId: userID)
-                }
-            }
-        }
-    }
-
-    func sendMessage(chatId: String, text: String, senderId: String, completion: ((Error?) -> Void)? = nil) {
+    func sendMessage(chatId: String, text: String, senderId: String) {
         
         let now = Date()
         let dateString = now.formattedString
@@ -39,14 +25,23 @@ final class ChatsViewModel {
         let message = Message(messageId: UUID().uuidString, senderId: senderId, text: text, timestamp: dateString, isRead: false)
 
         AuthManager.shared.sendMessage(chatId: chatId, message: message) { error in
-            completion?(error)
-            print("View model first message error: \(String(describing: error))")
+            
+
         }
     }
     
     func getUser(with userID: String) {
         AuthManager.shared.getUser(with: userID){ user in
             self.delegate?.userFetched(user: user)
+        }
+    }
+    func observeMessages(with chatId: String){
+        AuthManager.shared.observeMessages(chatRoomID: chatId)
+    }
+    
+    func fetchOldMessage(with chatId: String){
+        AuthManager.shared.fetchOldMessages(chatRoomID: chatId) { messages in
+            self.delegate?.oldMessagesFetched(messages: messages)
         }
     }
 }

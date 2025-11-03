@@ -7,11 +7,13 @@
 import PureLayout
 
 protocol DirectoryViewControllerDelegate: AnyObject {
-    func teppedNewConversation(userID: String)
+    func teppedNewConversation(userID: String, chatRoomId: String)
 }
 
 class DirectoryViewController: BaseViewController{
     
+    lazy var chatRoomId: String? = nil
+    private var selectedUser: User?
     weak var delegate: DirectoryViewControllerDelegate?
     
     private var users: [User]? = nil
@@ -74,6 +76,13 @@ extension DirectoryViewController: UISearchBarDelegate{
 }
 
 extension DirectoryViewController: ConverstaionViewModelDelegate {
+    
+    func chatRoomIdCreated(chatRoomId: String) {
+           guard let selectedUser = selectedUser else { return }
+           delegate?.teppedNewConversation(userID: selectedUser.uid, chatRoomId: chatRoomId)
+           dismissSelf()
+       }
+    
     func usersFetched(users: [User]) {
         self.users = users
         filteredUsers = users
@@ -101,10 +110,8 @@ extension DirectoryViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        guard let userId = filteredUsers?[indexPath.row].uid else { return}
-        viewModel.existsChat(with: userId)
-        
-        delegate?.teppedNewConversation(userID: userId)
-        self.dismissSelf()
+        guard let user = filteredUsers?[indexPath.row] else { return }
+        selectedUser = user
+        viewModel.existsChat(with: user.uid)
     }
 }

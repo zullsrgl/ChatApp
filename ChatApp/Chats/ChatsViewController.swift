@@ -12,7 +12,7 @@ class ChatsViewController: BaseViewController {
     private var bottomConstraint: NSLayoutConstraint!
     var userID: String? = nil
     
-    private var messages = [Message]()
+    lazy var chatId: String? = nil
     
     private lazy var viewModel = ChatsViewModel()
     private var tableView = ChatTableView()
@@ -84,8 +84,10 @@ class ChatsViewController: BaseViewController {
         
         viewModel.delegate = self
         
-        guard let userID = userID else { return }
+        guard let userID = userID, let chatId = chatId  else { return }
         viewModel.getUser(with: userID)
+        viewModel.observeMessages(with: chatId)
+        viewModel.fetchOldMessage(with: chatId)
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         tapGesture.cancelsTouchesInView = false
@@ -103,12 +105,14 @@ class ChatsViewController: BaseViewController {
     @objc func tappedSentButton() {
         
         guard let text = messageTextView.text,
-              let userID = userID, !text.isEmpty
+              let userID = userID, !text.isEmpty,
+              let chatId = chatId, !chatId.isEmpty
         else {
             self.showError(message: "please enter a message")
             return
         }
-        viewModel.chatExists(userID: userID, text: text)
+        
+        viewModel.sendMessage(chatId: chatId, text: text, senderId: userID)
         messageTextView.text = ""
     }
     
@@ -173,6 +177,11 @@ class ChatsViewController: BaseViewController {
 }
 
 extension ChatsViewController: ChatsViewModelDelegate {
+    
+    func oldMessagesFetched(messages: [Message]) {
+        tableView.setMessages(massages: messages)
+    }
+    
     func userFetched(user: User) {
         guard let profileImageUrl = user.profileImageUrl else { return }
         setupNavigationTitleView(userName: user.name, profileUrl: profileImageUrl)

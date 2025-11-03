@@ -52,9 +52,10 @@ extension HomeViewController: HomeTableViewDelegate {
 }
 
 extension HomeViewController: DirectoryViewControllerDelegate{
-    func teppedNewConversation(userID: String) {
+    func teppedNewConversation(userID: String, chatRoomId: String) {
         let vc = ChatsViewController()
         vc.userID = userID
+        vc.chatId = chatRoomId
         vc.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(vc, animated: true)
     }

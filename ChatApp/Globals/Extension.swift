@@ -27,17 +27,17 @@ extension Date {
     var formattedString: String {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        formatter.dateFormat = "yyyy-MM-dd h:mm:ss a Z"
         formatter.locale = Locale(identifier: "tr_TR")
         formatter.timeZone = TimeZone.current
         return formatter.string(from: self)
     }
     
     //MARK: for read
-    static func from(_ string: String, format: String = "yyyy-MM-dd HH:mm:ss") -> Date? {
-          let formatter = DateFormatter()
-          formatter.dateFormat = format
-          formatter.locale = Locale(identifier: "tr_TR")
-          formatter.timeZone = TimeZone.current
-          return formatter.date(from: string)
-      }
+    static func from(_ string: String) -> Date? {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "tr_TR_POSIX")
+        formatter.dateFormat = "yyyy-MM-dd h:mm:ss a ZZZ"
+        return formatter.date(from: string)
+    }
 }

@@ -265,10 +265,10 @@ class AuthManager {
         
         let messageData: [String: Any] = [
             "messageId": message.messageId,
-               "senderId": message.senderId,
-               "text": message.text,
-               "timestamp": message.timestamp,
-               "isRead": message.isRead
+            "senderId": message.senderId,
+            "text": message.text,
+            "timestamp": message.timestamp,
+            "isRead": message.isRead
         ]
         
         realTimeDb.child("chats").child(chatId).child(message.messageId).setValue(messageData) { error, _  in
@@ -294,4 +294,85 @@ class AuthManager {
             }
         }
     }
+    
+    func observeMessages(chatRoomID: String) {
+        realTimeDb.child("chats").child(chatRoomID).observe(.childAdded) { snapshot in
+            
+            guard let dict = snapshot.value as? [String: Any] else {
+                print(" Snapshot is not a dictionary")
+                return
+            }
+            
+            print(" Incoming message data:", dict)
+            guard
+                let senderId = dict["senderId"] as? String,
+                let messageId = dict["messageId"] as? String,
+                let text = dict["text"] as? String,
+                let dateString = dict["timestamp"] as? String
+            else {
+                print(" Missing core fields in snapshot")
+                return
+            }
+            
+            guard let date = Date.from(dateString) else {
+                print(" Failed to parse date from:", dateString)
+                return
+            }
+            
+            var isRead = false
+            if let boolValue = dict["isRead"] as? Bool {
+                isRead = boolValue
+            } else if let intValue = dict["isRead"] as? Int {
+                isRead = (intValue == 1)
+            }
+        }
+    }
+    
+    func fetchOldMessages(chatRoomID: String, completion: @escaping ([Message]) -> Void) {
+        realTimeDb.child("chats").child(chatRoomID).observeSingleEvent(of: .value) { snapshot in
+            
+            guard let messagesData = snapshot.value as? [String: Any] else {
+                print("No previous messages found.")
+                completion([])
+                return
+            }
+            
+            var messages: [Message] = []
+            
+            for (_, value) in messagesData {
+                guard let dict = value as? [String: Any],
+                      let senderId = dict["senderId"] as? String,
+                      let messageId = dict["messageId"] as? String,
+                      let text = dict["text"] as? String,
+                      let dateString = dict["timestamp"] as? String,
+                      let date = Date.from(dateString)
+                else { continue }
+                
+                var isRead = false
+                if let boolValue = dict["isRead"] as? Bool {
+                    isRead = boolValue
+                } else if let intValue = dict["isRead"] as? Int {
+                    isRead = (intValue == 1)
+                }
+                
+                let message = Message(
+                    messageId: messageId,
+                    senderId: senderId,
+                    text: text,
+                    timestamp: dateString,
+                    isRead: isRead
+                )
+                
+                messages.append(message)
+            }
+            
+            messages.sort {
+                Date.from($0.timestamp)! < Date.from($1.timestamp)!
+            }
+            
+            print("Loaded \(messages.count) previous messages.")
+            completion(messages)
+        }
+    }
+
 }
