@@ -295,27 +295,25 @@ class AuthManager {
         }
     }
     
-    func observeMessages(chatRoomID: String) {
+    func observeMessages(chatRoomID: String, completion: @escaping (Message) -> Void) {
         realTimeDb.child("chats").child(chatRoomID).observe(.childAdded) { snapshot in
             
             guard let dict = snapshot.value as? [String: Any] else {
-                print(" Snapshot is not a dictionary")
+                print("Snapshot is not a dictionary")
                 return
             }
             
-            print(" Incoming message data:", dict)
-            guard
-                let senderId = dict["senderId"] as? String,
-                let messageId = dict["messageId"] as? String,
-                let text = dict["text"] as? String,
-                let dateString = dict["timestamp"] as? String
+            guard let senderId = dict["senderId"] as? String,
+                  let messageId = dict["messageId"] as? String,
+                  let text = dict["text"] as? String,
+                  let dateString = dict["timestamp"] as? String
             else {
                 print(" Missing core fields in snapshot")
                 return
             }
             
-            guard let date = Date.from(dateString) else {
-                print(" Failed to parse date from:", dateString)
+            guard let _ = Date.from(dateString) else {
+                print("Failed to parse date from:", dateString)
                 return
             }
             
@@ -325,6 +323,15 @@ class AuthManager {
             } else if let intValue = dict["isRead"] as? Int {
                 isRead = (intValue == 1)
             }
+            
+            let message = Message(
+                messageId: messageId,
+                senderId: senderId,
+                text: text,
+                timestamp: dateString,
+                isRead: isRead
+            )
+            completion(message)
         }
     }
     
@@ -374,5 +381,4 @@ class AuthManager {
             completion(messages)
         }
     }
-
 }

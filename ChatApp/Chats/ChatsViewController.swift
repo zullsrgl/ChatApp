@@ -10,8 +10,7 @@ import Kingfisher
 class ChatsViewController: BaseViewController {
     
     private var bottomConstraint: NSLayoutConstraint!
-    var userID: String? = nil
-    
+    lazy var userID: String? = nil
     lazy var chatId: String? = nil
     
     private lazy var viewModel = ChatsViewModel()
@@ -86,8 +85,9 @@ class ChatsViewController: BaseViewController {
         
         guard let userID = userID, let chatId = chatId  else { return }
         viewModel.getUser(with: userID)
-        viewModel.observeMessages(with: chatId)
+        
         viewModel.fetchOldMessage(with: chatId)
+        viewModel.observeMessages(with: chatId)
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         tapGesture.cancelsTouchesInView = false
@@ -177,6 +177,9 @@ class ChatsViewController: BaseViewController {
 }
 
 extension ChatsViewController: ChatsViewModelDelegate {
+    func newMessageReceived(message: Message) {
+        tableView.massages?.append(message)
+    }
     
     func oldMessagesFetched(messages: [Message]) {
         tableView.setMessages(massages: messages)

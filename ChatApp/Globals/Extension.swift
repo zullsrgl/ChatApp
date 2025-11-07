@@ -24,19 +24,27 @@ extension UITextField {
 
 extension Date {
     
+    // MARK: - Date → String
     var formattedString: String {
         let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-        formatter.dateFormat = "yyyy-MM-dd h:mm:ss a Z"
         formatter.locale = Locale(identifier: "tr_TR")
         formatter.timeZone = TimeZone.current
+        formatter.dateFormat = "yyyy-MM-dd h:mm:ss a Z"
         return formatter.string(from: self)
     }
     
-    //MARK: for read
+    var formattedTime: String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "tr_TR")
+        formatter.timeZone = TimeZone.current
+        formatter.dateFormat = "HH:mm"
+        return formatter.string(from: self)
+    }
+    
+    // MARK: - String → Date
     static func from(_ string: String) -> Date? {
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "tr_TR_POSIX")
+        formatter.locale = Locale(identifier: "tr_TR")
         formatter.dateFormat = "yyyy-MM-dd h:mm:ss a ZZZ"
         return formatter.date(from: string)
     }

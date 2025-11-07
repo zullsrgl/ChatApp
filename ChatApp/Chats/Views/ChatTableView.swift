@@ -8,7 +8,13 @@
 import PureLayout
 
 class ChatTableView: UIView {
-    var massages: [Message]? = nil
+    
+    var massages: [Message]? = nil{
+        didSet{
+            tableView.reloadData()
+        }
+    }
+    
     private let tableView: UITableView = {
         var tableView = UITableView(frame: .zero, style: .plain)
         tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -18,13 +24,14 @@ class ChatTableView: UIView {
         tableView.separatorStyle = .none
         tableView.isUserInteractionEnabled = true
         tableView.contentInsetAdjustmentBehavior = .automatic
-        //tableView.transform = CGAffineTransform(scaleX: 1, y: -1)
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.estimatedRowHeight = 300
         return tableView
     }()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        tableView.register(ChatTableViewCell.self, forCellReuseIdentifier: ChatTableViewCell.identifier)
         tableView.delegate = self
         tableView.dataSource = self
         
@@ -33,7 +40,6 @@ class ChatTableView: UIView {
     }
     
     func setMessages(massages: [Message]){
-        print("message alll: \(massages)")
         self.massages = massages
         tableView.reloadData()
     }
@@ -49,12 +55,12 @@ extension ChatTableView: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: ChatTableViewCell.identifier, for: indexPath) as! ChatTableViewCell
         
         if let massages = massages, !massages.isEmpty {
             let message = massages[indexPath.row]
-            cell.textLabel?.text = message.text
-          //  cell.contentView.transform = CGAffineTransform(scaleX: 1, y: -1)
+            
+            cell.configureUI(text: message.text, time: message.timestamp, isRead: false)
         }
         
         return cell

@@ -10,6 +10,7 @@ import Foundation
 protocol ChatsViewModelDelegate: AnyObject {
     func userFetched(user: User)
     func oldMessagesFetched(messages: [Message])
+    func newMessageReceived(message: Message)
 }
 
 final class ChatsViewModel {
@@ -25,8 +26,6 @@ final class ChatsViewModel {
         let message = Message(messageId: UUID().uuidString, senderId: senderId, text: text, timestamp: dateString, isRead: false)
 
         AuthManager.shared.sendMessage(chatId: chatId, message: message) { error in
-            
-
         }
     }
     
@@ -36,7 +35,9 @@ final class ChatsViewModel {
         }
     }
     func observeMessages(with chatId: String){
-        AuthManager.shared.observeMessages(chatRoomID: chatId)
+        AuthManager.shared.observeMessages(chatRoomID: chatId){ newMessage in
+            self.delegate?.newMessageReceived(message: newMessage)
+        }
     }
     
     func fetchOldMessage(with chatId: String){
