@@ -17,6 +17,7 @@ class AuthManager {
     private var verificationId: String?
     private let db = Firestore.firestore()
     private let realTimeDb = Database.database().reference()
+    private var messagesRef: DatabaseReference?
     
     func createUser(email: String, password: String, phoneNumber: String, name: String, completion: @escaping (Bool, String, String?) -> Void) {
         auth.createUser(withEmail: email, password: password) { authResult, error in
@@ -380,5 +381,10 @@ class AuthManager {
             print("Loaded \(messages.count) previous messages.")
             completion(messages)
         }
+    }
+    
+    func removeAllObservers(for chatRoomID: String) {
+        realTimeDb.child("chats").child(chatRoomID).removeAllObservers()
+        print("Firebase Observers removed by AuthManager for chat: \(chatRoomID)")
     }
 }

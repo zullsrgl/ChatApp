@@ -59,7 +59,7 @@ extension ChatTableView: UITableViewDelegate, UITableViewDataSource {
         
         if let massages = massages, !massages.isEmpty {
             let message = massages[indexPath.row]
-            
+            cell.backgroundColor = .clear
             cell.configureUI(text: message.text, time: message.timestamp, isRead: false)
         }
         

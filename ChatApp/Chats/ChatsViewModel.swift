@@ -17,15 +17,15 @@ final class ChatsViewModel {
     var currentSender: String?
     
     weak var delegate: ChatsViewModelDelegate?
-
+    
     func sendMessage(chatId: String, text: String, senderId: String) {
         
         let now = Date()
         let dateString = now.formattedString
-        
         let message = Message(messageId: UUID().uuidString, senderId: senderId, text: text, timestamp: dateString, isRead: false)
 
         AuthManager.shared.sendMessage(chatId: chatId, message: message) { error in
+            
         }
     }
     
@@ -34,6 +34,7 @@ final class ChatsViewModel {
             self.delegate?.userFetched(user: user)
         }
     }
+    
     func observeMessages(with chatId: String){
         AuthManager.shared.observeMessages(chatRoomID: chatId){ newMessage in
             self.delegate?.newMessageReceived(message: newMessage)
@@ -44,5 +45,9 @@ final class ChatsViewModel {
         AuthManager.shared.fetchOldMessages(chatRoomID: chatId) { messages in
             self.delegate?.oldMessagesFetched(messages: messages)
         }
+    }
+    
+    func stopObservingMessages(chatId: String) {
+        AuthManager.shared.removeAllObservers(for: chatId )
     }
 }

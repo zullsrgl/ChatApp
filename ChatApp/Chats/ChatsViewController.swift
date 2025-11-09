@@ -72,30 +72,27 @@ class ChatsViewController: BaseViewController {
         
         sendButton.addTarget(self, action: #selector(tappedSentButton), for: .touchUpInside)
         
-        if #available(iOS 18.0, *) {
-            tabBarController?.isTabBarHidden = true
-        } else {
-            // Fallback on earlier versions
-        }
-        
         let leftBtn = self.backButton(vcName: "", target: self, action: #selector(tappedBack))
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: leftBtn)
         
         viewModel.delegate = self
-        
-        guard let userID = userID, let chatId = chatId  else { return }
-        viewModel.getUser(with: userID)
-        
-        viewModel.fetchOldMessage(with: chatId)
-        viewModel.observeMessages(with: chatId)
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         tapGesture.cancelsTouchesInView = false
         tapGesture.delegate = self
         self.view.addGestureRecognizer(tapGesture)
         self.navBarAppearance()
+        
+        getMetods()
         setUpUI()
         
+    }
+    
+    deinit {
+        if let chatId = chatId {
+            viewModel.stopObservingMessages(chatId: chatId)
+        }
+        NotificationCenter.default.removeObserver(self)
     }
     
     @objc private func tappedBack(){
@@ -149,6 +146,15 @@ class ChatsViewController: BaseViewController {
         tableView.autoPinEdge(.left, to: .left, of: view)
         tableView.autoPinEdge(.right, to: .right, of: view)
         tableView.autoPinEdge(.bottom, to: .top, of: stackContainerView, withOffset: -16)
+    }
+    
+    private func getMetods() {
+        
+        guard let userID = userID, let chatId = chatId  else { return }
+        viewModel.getUser(with: userID)
+        
+        viewModel.fetchOldMessage(with: chatId)
+        viewModel.observeMessages(with: chatId)
     }
     
     @objc private func keyboardWillShow(notification: Notification) {
@@ -248,6 +254,6 @@ extension ChatsViewController {
 
 extension ChatsViewController: UIGestureRecognizerDelegate {
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
-         return !(touch.view is UIButton || touch.view is UITextField)
-     }
+        return !(touch.view is UIButton || touch.view is UITextField)
+    }
 }
