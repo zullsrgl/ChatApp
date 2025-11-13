@@ -183,12 +183,13 @@ class ChatsViewController: BaseViewController {
 }
 
 extension ChatsViewController: ChatsViewModelDelegate {
-    func newMessageReceived(message: Message) {
-        tableView.massages?.append(message)
+    func oldMessagesFetched(messages: [Message], userInfo: User) {
+        tableView.setMessages(massages: messages)
+        tableView.chatUserID = userInfo.uid
     }
     
-    func oldMessagesFetched(messages: [Message]) {
-        tableView.setMessages(massages: messages)
+    func newMessageReceived(message: Message) {
+        tableView.massages?.append(message)
     }
     
     func userFetched(user: User) {

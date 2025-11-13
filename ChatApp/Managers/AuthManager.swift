@@ -246,7 +246,7 @@ class AuthManager {
         }
     }
     
-    func createNewChat(otherUserId: String){
+    func createNewChat(otherUserId: String, completion: @escaping(String) -> Void){
         guard let currentUserId = auth.currentUser?.uid else { return }
         let chatId = [currentUserId, otherUserId].sorted().joined(separator: "_")
         let chatRef = Database.database().reference().child("chats").child(chatId)
@@ -257,6 +257,7 @@ class AuthManager {
         
         chatRef.setValue(chatData) { error, _ in
             if error == nil {
+                completion(chatId)
                 print("new chat room has been created with id: \(chatId)")
             }
         }

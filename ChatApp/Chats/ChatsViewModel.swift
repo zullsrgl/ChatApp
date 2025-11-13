@@ -9,7 +9,7 @@ import Foundation
 
 protocol ChatsViewModelDelegate: AnyObject {
     func userFetched(user: User)
-    func oldMessagesFetched(messages: [Message])
+    func oldMessagesFetched(messages: [Message], userInfo: User)
     func newMessageReceived(message: Message)
 }
 
@@ -43,7 +43,10 @@ final class ChatsViewModel {
     
     func fetchOldMessage(with chatId: String){
         AuthManager.shared.fetchOldMessages(chatRoomID: chatId) { messages in
-            self.delegate?.oldMessagesFetched(messages: messages)
+            AuthManager.shared.currentUser{ user in
+                guard let user = user else {return}
+                self.delegate?.oldMessagesFetched(messages: messages, userInfo: user)
+            }
         }
     }
     

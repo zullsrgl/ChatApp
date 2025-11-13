@@ -4,14 +4,15 @@
 //
 //  Created by Zülal Sarıoğlu on 29.10.2025.
 //
+import Foundation
 
-protocol ConverstaionViewModelDelegate: AnyObject {
+protocol DirectoryViewModelDelegate: AnyObject {
     func usersFetched(users: [User])
     func chatRoomIdCreated(chatRoomId: String)
 }
 
-final class ConverstaionViewModel {
-    weak var delegate: ConverstaionViewModelDelegate?
+final class DirectoryViewModel {
+    weak var delegate: DirectoryViewModelDelegate?
     var currentSender: String?
     var userId: String?
     
@@ -24,7 +25,6 @@ final class ConverstaionViewModel {
             
         }
     }
-    
     func existsChat(with otherUserId: String) {
         AuthManager.shared.currentUser { [weak self] currentUser in
             guard let self = self, let user = currentUser else { return }
@@ -35,7 +35,10 @@ final class ConverstaionViewModel {
                     self.delegate?.chatRoomIdCreated(chatRoomId: chatId)
                     
                 } else {
-                    AuthManager.shared.createNewChat(otherUserId: otherUserId)
+                    AuthManager.shared.createNewChat(otherUserId: otherUserId) { chatId in
+                        self.delegate?.chatRoomIdCreated(chatRoomId: chatId)
+                        
+                    }
                 }
             }
         }

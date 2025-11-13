@@ -33,7 +33,7 @@ class DirectoryViewController: BaseViewController{
         return table
     }()
     
-    private lazy var viewModel = ConverstaionViewModel()
+    private lazy var viewModel = DirectoryViewModel()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -75,7 +75,7 @@ extension DirectoryViewController: UISearchBarDelegate{
     
 }
 
-extension DirectoryViewController: ConverstaionViewModelDelegate {
+extension DirectoryViewController: DirectoryViewModelDelegate {
     
     func chatRoomIdCreated(chatRoomId: String) {
            guard let selectedUser = selectedUser else { return }

@@ -22,7 +22,7 @@ class ChatTableViewCell: UITableViewCell {
         var lbl = UILabel()
         lbl.textAlignment = .left
         lbl.numberOfLines = 0
-        lbl.font = AppFont.regular.font(size: 12)
+        lbl.font = AppFont.regular.font(size: 16)
         lbl.textColor = Colors.white
         return lbl
     }()
@@ -45,21 +45,27 @@ class ChatTableViewCell: UITableViewCell {
         return image
     }()
     
+    private var leftConstraint: NSLayoutConstraint?
+    private var rightConstraint: NSLayoutConstraint?
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setUpCell()
     }
     
-    private func setUpCell(){
+    private func setUpCell() {
+        
         contentView.addSubview(bgView)
         bgView.autoPinEdge(toSuperviewEdge: .top, withInset: 2)
         bgView.autoPinEdge(toSuperviewEdge: .bottom, withInset: 4)
-        bgView.autoPinEdge(toSuperviewEdge: .trailing, withInset: 8)
         bgView.autoSetDimension(.width, toSize: UIScreen.main.bounds.width * 0.7, relation: .lessThanOrEqual)
         bgView.autoSetDimension(.width, toSize: 100, relation: .greaterThanOrEqual)
-        bgView.autoPinEdge(toSuperviewEdge: .trailing, withInset: 80, relation: .greaterThanOrEqual)
         
+        leftConstraint = bgView.autoPinEdge(toSuperviewEdge: .left, withInset: 8)
+        rightConstraint = bgView.autoPinEdge(toSuperviewEdge: .right, withInset: 8)
+        
+        leftConstraint?.isActive = false
+        rightConstraint?.isActive = true
         
         bgView.addSubview(textLbl)
         textLbl.autoPinEdge(.left, to: .left, of: bgView, withOffset: 8)
@@ -78,22 +84,34 @@ class ChatTableViewCell: UITableViewCell {
         timeLbl.autoSetDimension(.height, toSize: 10)
         timeLbl.autoSetDimension(.width, toSize: 24)
         timeLbl.autoPinEdge(.bottom, to: .bottom, of: bgView)
-        
     }
     
-    func configureUI(text: String, time: String, isRead: Bool){
+    func configureUI(text: String, time: String, isRead: Bool, isFromCurrentUser: Bool) {
         textLbl.text = text
-        
         
         if isRead {
             isReadImage.tintColor = Colors.primary
-        }else{
-            isReadImage.tintColor = Colors.gray
+        } else {
+            isReadImage.tintColor = Colors.lightGray
         }
         
-        if let date = Date.from(time){
+        if let date = Date.from(time) {
             timeLbl.text = date.formattedTime
         }
+        
+        if isFromCurrentUser {
+            bgView.backgroundColor = Colors.gray
+            textLbl.textColor = Colors.darko
+            rightConstraint?.isActive = false
+            leftConstraint?.isActive = true
+        } else {
+            bgView.backgroundColor = Colors.primary
+            textLbl.textColor = Colors.white
+            leftConstraint?.isActive = false
+            rightConstraint?.isActive = true
+        }
+        
+        layoutIfNeeded()
     }
     
     required init?(coder: NSCoder) {

@@ -9,6 +9,7 @@ import PureLayout
 
 class ChatTableView: UIView {
     
+    var chatUserID: String?
     var massages: [Message]? = nil{
         didSet{
             tableView.reloadData()
@@ -56,13 +57,12 @@ extension ChatTableView: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: ChatTableViewCell.identifier, for: indexPath) as! ChatTableViewCell
+        guard let massages = massages, !massages.isEmpty  else { return  cell}
         
-        if let massages = massages, !massages.isEmpty {
-            let message = massages[indexPath.row]
-            cell.backgroundColor = .clear
-            cell.configureUI(text: message.text, time: message.timestamp, isRead: false)
-        }
+        let message = massages[indexPath.row]
+        cell.backgroundColor = .clear
         
+        cell.configureUI(text: message.text, time: message.timestamp, isRead: false, isFromCurrentUser: message.senderId == chatUserID)
         return cell
     }
 }
