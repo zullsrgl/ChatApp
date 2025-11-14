@@ -9,12 +9,16 @@ import PureLayout
 
 
 protocol HomeTableViewDelegate: AnyObject {
-    func cellDidSelect()
+    func cellDidSelect(userId: String)
 }
 
 class HomeTableView: UIView {
     
     weak var delegate: HomeTableViewDelegate?
+    
+    private var users: [User]? = nil
+    private var lastMessage: Message? = nil
+    public var unReadMessageCount: Int = 0
     
     private let searchBar: UISearchBar = {
         var view = UISearchBar()
@@ -54,6 +58,16 @@ class HomeTableView: UIView {
         
     }
     
+    func getUsers(users:[User]){
+        self.users = users
+        tableView.reloadData()
+    }
+    
+    func getLastMessage(lastMessage: Message){
+        self.lastMessage = lastMessage
+        tableView.reloadData()
+    }
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -61,20 +75,24 @@ class HomeTableView: UIView {
 
 extension HomeTableView: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 100
+        guard let users = users, !users.isEmpty else { return 0 }
+        return users.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: HomeTableViewCell.Identifier, for: indexPath) as! HomeTableViewCell
-        cell.setCell(index: indexPath.row)
+        guard let users = users,let lastMessage = lastMessage, !users.isEmpty else { return cell }
+        cell.setCell(user: users[indexPath.row], lastMessage: lastMessage, unReadMessageCount: unReadMessageCount)
         return cell
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 80
     }
+    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        delegate?.cellDidSelect()
+        guard let users = users, !users.isEmpty else { return  }
+        delegate?.cellDidSelect(userId: users[indexPath.row].uid)
     }
 }
 

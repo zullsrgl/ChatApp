@@ -9,12 +9,16 @@ import PureLayout
 class HomeViewController: BaseViewController {
     
     private let homeTableView = HomeTableView()
+    private lazy var viewModel = HomeViewModel()
+    private var chatRoomId: String? = nil
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.navBarSetUp(title: "Chat", largeTitle: true)
+    }
     
     override func viewDidLoad(){
         super.viewDidLoad()
-        
-        self.navBarSetUp(title: "Chats", largeTitle: true)
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "square.and.pencil"), style: .plain, target: self, action: #selector(newMessageButton))
         navigationItem.rightBarButtonItem?.tintColor = Colors.primary
@@ -23,6 +27,9 @@ class HomeViewController: BaseViewController {
         navigationItem.leftBarButtonItem?.tintColor = Colors.primary
         
         homeTableView.delegate = self
+        viewModel.delegate = self
+        viewModel.getAllUser()
+       
         setUpUI()
     }
     
@@ -44,9 +51,12 @@ class HomeViewController: BaseViewController {
 }
 
 extension HomeViewController: HomeTableViewDelegate {
-    func cellDidSelect() {
+    func cellDidSelect(userId: String) {
+        
         let vc = ChatsViewController()
-        vc.userID = "uYUdaFORQ3h8qMPjtK3ArLdDDua2"
+        vc.userID = userId
+        vc.chatId = self.chatRoomId
+        vc.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(vc, animated: true)
     }
 }
@@ -58,5 +68,21 @@ extension HomeViewController: DirectoryViewControllerDelegate{
         vc.chatId = chatRoomId
         vc.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(vc, animated: true)
+    }
+}
+
+extension HomeViewController: HomeViewModelDelegate{
+    func unReadMessageCountFetched(unReadMessageCount: Int) {
+        homeTableView.unReadMessageCount = unReadMessageCount
+        
+    }
+    
+    func userLastMessagesFetched(lastMessage: Message) {
+        homeTableView.getLastMessage(lastMessage: lastMessage)
+    }
+    
+    func usersFetched(users: [User], chatId: String) {
+        homeTableView.getUsers(users: users)
+        self.chatRoomId = chatId
     }
 }

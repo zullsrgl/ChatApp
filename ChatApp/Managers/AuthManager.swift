@@ -232,16 +232,16 @@ class AuthManager {
         
     }
     
-    func checkIfChatExists(otherUserId: String, completion: @escaping(String?) -> Void){
+    func checkIfChatExists(otherUserId: String, completion: @escaping(String?, Bool) -> Void){
         guard let currentUserId = auth.currentUser?.uid else { return }
         let chatId = [currentUserId, otherUserId].sorted().joined(separator: "_")
         let chatRef = Database.database().reference().child("chats").child(chatId)
         
         chatRef.observeSingleEvent(of: .value) { snapshot in
             if snapshot.exists() {
-                completion(chatId)
+                completion(chatId, true)
             }else {
-                completion(nil)
+                completion(nil, false)
             }
         }
     }
@@ -379,10 +379,48 @@ class AuthManager {
                 Date.from($0.timestamp)! < Date.from($1.timestamp)!
             }
             
-            print("Loaded \(messages.count) previous messages.")
             completion(messages)
         }
     }
+    
+    func fetchUnreadCount(chatRoomID: String, completion: @escaping (Int) -> Void) {
+        guard let currentUserId = auth.currentUser?.uid else {
+            completion(0)
+            return
+        }
+        
+        realTimeDb.child("chats").child(chatRoomID).observeSingleEvent(of: .value) { snapshot in
+            
+            guard let messagesData = snapshot.value as? [String: Any] else {
+                completion(0)
+                return
+            }
+            
+            var unreadCount = 0
+            
+            for (_, value) in messagesData {
+                guard let dict = value as? [String: Any],
+                      let senderId = dict["senderId"] as? String else { continue }
+                
+                if senderId != currentUserId {
+                    continue
+                }
+                var isRead = false
+                if let boolValue = dict["isRead"] as? Bool {
+                    isRead = boolValue
+                } else if let intValue = dict["isRead"] as? Int {
+                    isRead = (intValue == 1)
+                }
+                
+                if !isRead {
+                    unreadCount += 1
+                }
+            }
+            
+            completion(unreadCount)
+        }
+    }
+
     
     func removeAllObservers(for chatRoomID: String) {
         realTimeDb.child("chats").child(chatRoomID).removeAllObservers()

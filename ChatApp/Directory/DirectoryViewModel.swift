@@ -13,8 +13,7 @@ protocol DirectoryViewModelDelegate: AnyObject {
 
 final class DirectoryViewModel {
     weak var delegate: DirectoryViewModelDelegate?
-    var currentSender: String?
-    var userId: String?
+    private var currentSender: String?
     
     func getAllUser(){
         AuthManager.shared.fetchAllUser { users, error in
@@ -30,7 +29,7 @@ final class DirectoryViewModel {
             guard let self = self, let user = currentUser else { return }
             self.currentSender = user.uid
             
-            AuthManager.shared.checkIfChatExists(otherUserId: otherUserId) { existingChatId in
+            AuthManager.shared.checkIfChatExists(otherUserId: otherUserId) { existingChatId, ifExist in
                 if let chatId = existingChatId {
                     self.delegate?.chatRoomIdCreated(chatRoomId: chatId)
                     

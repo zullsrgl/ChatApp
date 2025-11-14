@@ -6,6 +6,7 @@
 //
 
 import PureLayout
+import Kingfisher
 
 class HomeTableViewCell: UITableViewCell {
     static let Identifier = "chatsTableViewCell"
@@ -18,16 +19,13 @@ class HomeTableViewCell: UITableViewCell {
     
     private let profilePhoto: UIImageView = {
         let image = UIImageView()
-        image.backgroundColor = Colors.secondary
         image.layer.cornerRadius = 20
         image.clipsToBounds = true
-        image.image = UIImage(systemName: "person.crop.circle")
         return image
     }()
     
     private let nameLabel: UILabel = {
         var lbl = UILabel()
-        lbl.text = "Zülal Sarıoğlu"
         lbl.textColor = Colors.darko
         lbl.textAlignment = .left
         lbl.translatesAutoresizingMaskIntoConstraints = false
@@ -38,13 +36,13 @@ class HomeTableViewCell: UITableViewCell {
         var lbl = UILabel()
         lbl.textColor = Colors.gray
         lbl.textAlignment = .left
+        lbl.numberOfLines = 0
         lbl.translatesAutoresizingMaskIntoConstraints = false
         return lbl
     }()
     
     private let timeLabel: UILabel = {
         var lbl = UILabel()
-        lbl.text = "10:40"
         lbl.textColor = Colors.gray
         lbl.textAlignment = .right
         lbl.font = AppFont.medium.font(size: 8)
@@ -54,10 +52,10 @@ class HomeTableViewCell: UITableViewCell {
     
     private let messageCountLabel: UILabel = {
         var lbl = UILabel()
-        lbl.text = "2"
         lbl.backgroundColor = Colors.secondary
         lbl.textColor = Colors.white
         lbl.textAlignment = .right
+        lbl.isHidden = true
         lbl.clipsToBounds = true
         lbl.layer.cornerRadius = 10
         lbl.textAlignment = .center
@@ -111,10 +109,25 @@ class HomeTableViewCell: UITableViewCell {
         bottomLine.autoSetDimension(.height, toSize: 1)
     }
     
-    func setCell(index: Int){
+    func setCell(user: User, lastMessage: Message, unReadMessageCount: Int){
+        guard let profileImageUrl = user.profileImageUrl else { return }
+        profilePhoto.kf.setImage(with: URL(string: profileImageUrl))
+        nameLabel.text = user.name
         
-        messageLabel.text = "Message: \(index)"
+        messageLabel.text = lastMessage.text
+        
+        if let date = Date.from(lastMessage.timestamp) {
+            timeLabel.text = date.formattedTime
+        }
+        
+        if unReadMessageCount == 0 {
+            messageCountLabel.isHidden = true
+        }else {
+            messageCountLabel.isHidden = false
+            messageCountLabel .text = "\(unReadMessageCount)"
+        }
     }
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
