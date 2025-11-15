@@ -14,25 +14,20 @@ final class LoginViewModel {
     
     weak var delegate: LoginViewModelDelegate?
     
-    func getUser(email: String, password: String){
-        AuthManager.shared.loginUser(email: email, password: password) { success, message  in
-            
-            if success {
-                self.delegate?.didCheckEmail(exists: success, message: message)
-            } else {
-                self.delegate?.didCheckEmail(exists: success, message: message)
-            }
-        } 
+    func loginUser(email: String, password: String){
+        AuthManager.shared.loginUser(email: email, password: password) { [weak self] success, message  in
+            self?.delegate?.didCheckEmail(exists: success, message: message)
+        }
     }
     
     func resetPassword(email: String){
-        AuthManager.shared.resetPassword(email: email) { message, success in
+        AuthManager.shared.resetPassword(email: email) {[weak self] message, success in
             
             if success {
-                self.delegate?.passwordResetDidFinish(message: message ?? "")
+                self?.delegate?.passwordResetDidFinish(message: message ?? "")
                 
             } else {
-                self.delegate?.passwordResetDidFinish(message: "Password reset email could not be sent")
+                self?.delegate?.passwordResetDidFinish(message: "Password reset email could not be sent")
             }
         }
     }

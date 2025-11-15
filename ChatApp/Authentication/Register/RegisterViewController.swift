@@ -11,7 +11,7 @@ import Lottie
 class RegisterViewController: BaseViewController {
     
     private lazy var viewModel = RegisterViewModel()
-    
+    private var animationView = LottieAnimationView(name: "email")
     private var nameTextField: UITextField = {
         var txt = UITextField()
         txt.textColor = Colors.darko
@@ -88,7 +88,6 @@ class RegisterViewController: BaseViewController {
         let leftBarBtn = self.backButton(vcName: "Login", target: self, action: #selector(backTapped))
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: leftBarBtn)
         
-        NotificationCenter.default.addObserver(self, selector: #selector(showEmailAnimation), name: .emailVerificationSent, object: nil)
         viewModel.delegate = self
         
         saveButton.addTarget(self, action: #selector(saveButtonClicked), for: .touchUpInside)
@@ -160,33 +159,28 @@ class RegisterViewController: BaseViewController {
     }
     
     @objc private func showEmailAnimation(){
-        let animationView: LottieAnimationView?
-        animationView = .init(name: "email")
-        animationView?.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
-        animationView?.center = view.center
-        animationView?.backgroundColor = Colors.primary
-        animationView?.contentMode = .scaleAspectFit
-        animationView?.loopMode = .loop
-        
-        guard let animation = animationView else { return }
-        
-        view.addSubview(animation)
-        
-        animationView?.play()
-        
-    }
+ 
+        animationView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+        animationView.center = view.center
+        animationView.backgroundColor = Colors.primary
+        animationView.contentMode = .scaleAspectFit
+        animationView.loopMode = .loop
     
-    @objc private func backTapped() {
-        navigationController?.popViewController(animated: true)
+        view.addSubview(animationView)
+        animationView.play()
+        
     }
     
     @objc private func toggleEye(){
         let isSecure = passwordTextField.isSecureTextEntry
-        
         let iconName = isSecure ? "eye.slash": "eye"
         passwordTextField.isSecureTextEntry = !isSecure
         eyeIconButton.setImage(UIImage(systemName: iconName), for: .normal)
         
+    }
+    
+    private func removeAnimation(){
+        animationView.removeFromSuperview()
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -195,14 +189,16 @@ class RegisterViewController: BaseViewController {
 }
 
 extension RegisterViewController: RegisterViewModelDelegate {
+    func animationShowed() {
+        self.showEmailAnimation()
+    }
+    
     func userDidCreate(isSuccess: Bool, message: String) {
         if isSuccess{
-            self.showEmailAnimation()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 5){
-                self.navigationController?.popViewController(animated: true)
-            }
+            self.navigationController?.popViewController(animated: true)
         } else {
             self.showError(message: message)
         }
+        removeAnimation()
     }
 }

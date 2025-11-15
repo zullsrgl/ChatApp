@@ -191,7 +191,7 @@ class LoginViewController: BaseViewController {
             self.showError(message: "Please enter your information")
             return
         }
-        viewModel.getUser(email: email, password: password)
+        viewModel.loginUser(email: email, password: password)
     }
     
     
@@ -255,9 +255,5 @@ extension LoginViewController: LoginViewModelDelegate{
         } else {
             self.showAlertActiob(message: message)
         }
-    }
-    
-    func loginFailed(errorMessage: String) {
-        self.showError(message: errorMessage)
     }
 }

@@ -120,8 +120,9 @@ class BaseViewController: UIViewController {
         }()
         
         self.view.addSubview(errorLabel)
-        errorLabel.autoAlignAxis(toSuperviewAxis: .horizontal)
-        errorLabel.autoAlignAxis(toSuperviewAxis: .vertical)
+        errorLabel.autoPinEdge(.top, to: .top, of: view, withOffset: 60)
+        errorLabel.autoPinEdge(.left, to: .left, of: view, withOffset: 12)
+        errorLabel.autoPinEdge(.right, to: .right, of: view, withOffset: -12)
         
         errorLabel.autoSetDimension(.height, toSize: 40)
         errorLabel.autoSetDimension(.width, toSize: UIScreen.main.bounds.width - 16)
@@ -177,6 +178,10 @@ class BaseViewController: UIViewController {
         backBtn.translatesAutoresizingMaskIntoConstraints = false
         backBtn.addTarget(target, action: action, for: .touchUpInside)
         return backBtn
+    }
+    
+    @objc func backTapped() {
+        navigationController?.popViewController(animated: true)
     }
     
 }

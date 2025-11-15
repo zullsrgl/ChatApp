@@ -7,7 +7,7 @@
 
 import UIKit
 
-enum Colors {
+struct Colors {
     static var primary: UIColor {
         return color(
             dark: UIColor(red: 254.0 / 255.0, green: 192.0 / 255.0, blue: 8.0 / 255.0, alpha: 1.0),

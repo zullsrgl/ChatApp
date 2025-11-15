@@ -60,7 +60,6 @@ class AuthManager {
                         print("Verification email not sent: \(error.localizedDescription)")
                     } else {
                         print("Verification email sent.")
-                        NotificationCenter.default.post(name: .emailVerificationSent, object: nil)
                     }
                 }
                 completion(true, "User created successfully", user.uid)
@@ -83,28 +82,26 @@ class AuthManager {
     
     func loginUser(email: String, password: String, completion: @escaping (Bool, String) -> Void) {
         auth.signIn(withEmail: email, password: password) { authResult, error in
-            if let maybeError = error {
-                print("maybeError: \(maybeError)")
-                if let err = error as? NSError {
-                    if let errorCode = AuthErrorCode(rawValue: err.code){
-                        var message = ""
-                        switch errorCode {
-                        case .invalidEmail:
-                            message = "Invalid email format. Please check your email address."
-                        case .wrongPassword, .invalidCredential, .userNotFound:
-                            message = "Email or password is incorrect. Please try again."
-                        case .userDisabled:
-                            message = "This account has been disabled. Contact support for help."
-                        case .tooManyRequests:
-                            message = "Too many login attempts. Please try again later."
-                        case .networkError:
-                            message = "Network error. Please check your internet connection and try again."
-                        default:
-                            message = "An unknown error occurred: \(err.localizedDescription)"
-                        }
-                        completion(false, message)
-                        return
+            
+            if let err = error as? NSError {
+                if let errorCode = AuthErrorCode(rawValue: err.code){
+                    var message = ""
+                    switch errorCode {
+                    case .invalidEmail:
+                        message = "Invalid email format. Please check your email address."
+                    case .wrongPassword, .invalidCredential, .userNotFound:
+                        message = "Email or password is incorrect. Please try again."
+                    case .userDisabled:
+                        message = "This account has been disabled. Contact support for help."
+                    case .tooManyRequests:
+                        message = "Too many login attempts. Please try again later."
+                    case .networkError:
+                        message = "Network error. Please check your internet connection and try again."
+                    default:
+                        message = "An unknown error occurred: \(err.localizedDescription)"
                     }
+                    completion(false, message)
+                    return
                 }
             }
             
@@ -420,7 +417,7 @@ class AuthManager {
             completion(unreadCount)
         }
     }
-
+    
     
     func removeAllObservers(for chatRoomID: String) {
         realTimeDb.child("chats").child(chatRoomID).removeAllObservers()

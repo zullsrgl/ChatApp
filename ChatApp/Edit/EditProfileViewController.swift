@@ -88,10 +88,6 @@ class EditProfileViewController: BaseViewController {
         viewModel.updateUserData(image: image, fullName: name, phone: phone)
         
     }
-    
-    @objc func backTapped () {
-        navigationController?.popViewController(animated: true)
-    }
 }
 
 extension EditProfileViewController: EditProfileViewModelDelegate {

@@ -20,23 +20,24 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let window = UIWindow(windowScene: windowScene)
         window.backgroundColor = Colors.white
         
+        var rootViewController: UIViewController? = nil
+        
         if let user = Auth.auth().currentUser{
             let creation = user.metadata.creationDate
             let lastSignIn = user.metadata.lastSignInDate
             
+            
             if creation == lastSignIn {
-                let loginVC = LoginViewController()
-                let navController = UINavigationController(rootViewController: loginVC)
-                window.rootViewController = navController
+                rootViewController = UINavigationController(rootViewController: LoginViewController())
+                
             } else {
-                window.rootViewController = TabBarController()
+                rootViewController = UINavigationController(rootViewController: TabBarController())
             }
         } else {
-            let loginVC = LoginViewController()
-            let navController = UINavigationController(rootViewController: loginVC)
-            window.rootViewController = navController
+            rootViewController = UINavigationController(rootViewController: LoginViewController())
         }
         
+        window.rootViewController = rootViewController
         window.makeKeyAndVisible()
         self.window = window
     }
