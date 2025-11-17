@@ -109,23 +109,30 @@ class HomeTableViewCell: UITableViewCell {
         bottomLine.autoSetDimension(.height, toSize: 1)
     }
     
-    func setCell(user: User, lastMessage: Message, unReadMessageCount: Int){
-        guard let profileImageUrl = user.profileImageUrl else { return }
-        profilePhoto.kf.setImage(with: URL(string: profileImageUrl))
-        nameLabel.text = user.name
+    func setCell(chat: Chat){
         
-        messageLabel.text = lastMessage.text
+        let lastMessage = chat.lastMessage?.text
+    
         
-        if let date = Date.from(lastMessage.timestamp) {
+        guard  let imageUrl = chat.user.profileImageUrl else { return }
+        profilePhoto.kf.setImage(with: URL(string: imageUrl))
+        nameLabel.text = chat.user.name
+        messageLabel.text = lastMessage
+        
+        guard let timestamp = chat.lastMessage?.timestamp else { return }
+        
+        if let date = Date.from(timestamp) {
             timeLabel.text = date.formattedTime
         }
         
-        if unReadMessageCount == 0 {
+        if chat.unReadMessageCount == 0 {
             messageCountLabel.isHidden = true
         }else {
             messageCountLabel.isHidden = false
-            messageCountLabel .text = "\(unReadMessageCount)"
+            messageCountLabel.text = "\(chat.unReadMessageCount)"
+            
         }
+        
     }
     
     required init?(coder: NSCoder) {

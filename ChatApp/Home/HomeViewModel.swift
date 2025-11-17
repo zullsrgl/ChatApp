@@ -6,50 +6,62 @@
 //
 
 protocol HomeViewModelDelegate: AnyObject {
-    func usersFetched(users: [User], chatId: String)
-    func userLastMessagesFetched(lastMessage: Message)
-    func unReadMessageCountFetched(unReadMessageCount: Int)
+    func chatsFetched(chat: [Chat])
 }
 
 final class HomeViewModel {
     weak var delegate: HomeViewModelDelegate?
-    private var currentSender: String?
-    private var users: [User] = []
+    private var chat: [Chat] = []
     
+    private func returnChats(){
+        self.delegate?.chatsFetched(chat: chat)
+    }
     
     func getAllUser(){
-        AuthManager.shared.fetchAllUser { users, error in
+        AuthManager.shared.fetchAllUser { [weak self] users, error in
             guard error == nil else { return }
             guard let users = users, !users.isEmpty else { return }
-   
-            for user in users {
-                AuthManager.shared.checkIfChatExists(otherUserId: user.uid){ chatId, isExsist in
-                    if isExsist {
-                        self.users.append(user)
-                        guard let chatRoomId = chatId,  !chatRoomId.isEmpty else { return}
-                        self.delegate?.usersFetched(users: self.users, chatId: chatRoomId)
-                        
-                        guard let chatRoomId = chatId, !chatRoomId.isEmpty else { return }
-                        AuthManager.shared.fetchOldMessages(chatRoomID: chatRoomId){ messages in
-                            if let lastMessage = messages.last {
-                                self.delegate?.userLastMessagesFetched(lastMessage: lastMessage)
-                            }
-                        }
-                        AuthManager.shared.fetchUnreadCount(chatRoomID: chatRoomId) { unReadMessageCount in
-                            self.delegate?.unReadMessageCountFetched(unReadMessageCount: unReadMessageCount)
-                            
-                        }
-                        
-                    } else{
-                        print("chat not exsist")
-                    }
+            
+            users.forEach { user in
+                self?.checkIfChatExists(user: user)
+                
+            }
+        }
+    }
+    
+    private func checkIfChatExists(user: User){
+        AuthManager.shared.checkIfChatExists(otherUserId: user.uid){ [weak self] chatId, isExsist in
+            guard let chatId = chatId else { return}
+            if isExsist {
+                self?.chat.append( Chat(chatId: chatId, user: user, lastMessage: nil, unReadMessageCount: 0))
+                
+                self?.getLastMessage(chatId: chatId){
+                    self?.returnChats()
+                }
+                self?.getLastMessage(chatId: chatId){
+                    self?.returnChats()
                     
                 }
             }
         }
     }
     
-    func unReadMessageCount(){
-        
+    private func getLastMessage(chatId: String, completion: @escaping() -> Void){
+        AuthManager.shared.fetchOldMessages(chatRoomID: chatId){ [weak self] messages in
+            if let lastMessage = messages.last {
+                let index = self?.chat.firstIndex { chat in
+                    chat.chatId == chatId
+                    
+                }
+                guard let index = index else { return }
+                
+                self?.chat[index].lastMessage = lastMessage
+                completion()
+            }else {
+                completion()
+            }
+            
+        }
     }
 }
+

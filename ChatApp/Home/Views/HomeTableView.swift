@@ -15,10 +15,7 @@ protocol HomeTableViewDelegate: AnyObject {
 class HomeTableView: UIView {
     
     weak var delegate: HomeTableViewDelegate?
-    
-    private var users: [User]? = nil
-    private var lastMessage: Message? = nil
-    public var unReadMessageCount: Int = 0
+    private var chats: [Chat] = []
     
     private let searchBar: UISearchBar = {
         var view = UISearchBar()
@@ -58,13 +55,8 @@ class HomeTableView: UIView {
         
     }
     
-    func getUsers(users:[User]){
-        self.users = users
-        tableView.reloadData()
-    }
-    
-    func getLastMessage(lastMessage: Message){
-        self.lastMessage = lastMessage
+    func setChats(chats: [Chat]){
+        self.chats = chats
         tableView.reloadData()
     }
     
@@ -75,14 +67,13 @@ class HomeTableView: UIView {
 
 extension HomeTableView: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        guard let users = users, !users.isEmpty else { return 0 }
-        return users.count
+        return chats.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: HomeTableViewCell.Identifier, for: indexPath) as! HomeTableViewCell
-        guard let users = users,let lastMessage = lastMessage, !users.isEmpty else { return cell }
-        cell.setCell(user: users[indexPath.row], lastMessage: lastMessage, unReadMessageCount: unReadMessageCount)
+        
+        cell.setCell(chat: chats[indexPath.row])
         return cell
     }
     
@@ -91,8 +82,7 @@ extension HomeTableView: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        guard let users = users, !users.isEmpty else { return  }
-        delegate?.cellDidSelect(userId: users[indexPath.row].uid)
+        delegate?.cellDidSelect(userId: chats[indexPath.row].user.uid)
     }
 }
 

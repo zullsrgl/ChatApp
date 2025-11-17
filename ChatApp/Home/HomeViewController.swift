@@ -72,17 +72,7 @@ extension HomeViewController: DirectoryViewControllerDelegate{
 }
 
 extension HomeViewController: HomeViewModelDelegate{
-    func unReadMessageCountFetched(unReadMessageCount: Int) {
-        homeTableView.unReadMessageCount = unReadMessageCount
-        
-    }
-    
-    func userLastMessagesFetched(lastMessage: Message) {
-        homeTableView.getLastMessage(lastMessage: lastMessage)
-    }
-    
-    func usersFetched(users: [User], chatId: String) {
-        homeTableView.getUsers(users: users)
-        self.chatRoomId = chatId
+    func chatsFetched(chat: [Chat]) {
+        homeTableView.setChats(chats: chat)
     }
 }
