@@ -163,8 +163,8 @@ class AuthManager {
                 return
             }
             
-            let user = User(name: data["name"] as? String ?? "",
-                            uid: userId,
+            let user = User(uid: userId,
+                            name: data["name"] as? String ?? "",
                             email: data["email"] as? String ?? "",
                             phone: data["phone"] as? String ?? "",
                             profileImageUrl: data["profileImageUrl"] as? String ?? "")

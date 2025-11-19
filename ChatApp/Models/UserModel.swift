@@ -6,8 +6,8 @@
 //
 
 struct User: Decodable {
+    var uid: String
     let name: String
-    let uid: String
     let email : String
     let phone: String
     let profileImageUrl: String?

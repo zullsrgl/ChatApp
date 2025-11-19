@@ -8,7 +8,7 @@ import Foundation
 
 protocol DirectoryViewModelDelegate: AnyObject {
     func usersFetched(users: [User])
-    func chatRoomIdCreated(chatRoomId: String)
+    func chatCreated(chat: Chat)
 }
 
 final class DirectoryViewModel {
@@ -24,22 +24,30 @@ final class DirectoryViewModel {
             
         }
     }
+    
     func existsChat(with otherUserId: String) {
-        AuthManager.shared.currentUser { [weak self] currentUser in
-            guard let self = self, let user = currentUser else { return }
-            self.currentSender = user.uid
-            
-            AuthManager.shared.checkIfChatExists(otherUserId: otherUserId) { existingChatId, ifExist in
-                if let chatId = existingChatId {
-                    self.delegate?.chatRoomIdCreated(chatRoomId: chatId)
+        
+        AuthManager.shared.checkIfChatExists(otherUserId: otherUserId) { [weak self] existingChatId, ifExist in
+            guard let self = self else { return }
+            self.getUser(otherUserId: otherUserId) { user in
+                
+                if ifExist, let chatId = existingChatId {
+                    let chat = Chat(chatId: chatId, user: user, unReadMessageCount: 0)
+                    self.delegate?.chatCreated(chat: chat)
                     
                 } else {
                     AuthManager.shared.createNewChat(otherUserId: otherUserId) { chatId in
-                        self.delegate?.chatRoomIdCreated(chatRoomId: chatId)
-                        
+                        let chat = Chat(chatId: chatId, user: user, unReadMessageCount: 0)
+                        self.delegate?.chatCreated(chat: chat)
                     }
                 }
             }
+        }
+    }
+    
+    private func getUser(otherUserId: String, completion: @escaping(User) -> Void) {
+        AuthManager.shared.getUser(with: otherUserId) { user in
+            completion(user)
         }
     }
 }

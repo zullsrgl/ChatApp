@@ -7,7 +7,7 @@
 
 struct Chat {
     let chatId: String
-    let user: User
+    var user: User
     var lastMessage: Message?
     var unReadMessageCount: Int
     

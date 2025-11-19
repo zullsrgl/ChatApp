@@ -48,26 +48,24 @@ class HomeViewController: BaseViewController {
     @objc private func moreButton(){
         //TODO: 
     }
-}
-
-extension HomeViewController: HomeTableViewDelegate {
-    func cellDidSelect(userId: String) {
-        
+    
+    private func navigateToChat( chat: Chat){
         let vc = ChatsViewController()
-        vc.userID = userId
-        vc.chatId = self.chatRoomId
+        vc.chat = chat
         vc.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(vc, animated: true)
     }
 }
 
+extension HomeViewController: HomeTableViewDelegate {
+    func cellDidSelect(chat: Chat) {
+        navigateToChat(chat: chat)
+    }
+}
+
 extension HomeViewController: DirectoryViewControllerDelegate{
-    func teppedNewConversation(userID: String, chatRoomId: String) {
-        let vc = ChatsViewController()
-        vc.userID = userID
-        vc.chatId = chatRoomId
-        vc.hidesBottomBarWhenPushed = true
-        navigationController?.pushViewController(vc, animated: true)
+    func tappedNewConversation(chat: Chat) {
+        navigateToChat(chat: chat)
     }
 }
 

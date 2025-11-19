@@ -10,8 +10,8 @@ import Kingfisher
 class ChatsViewController: BaseViewController {
     
     private var bottomConstraint: NSLayoutConstraint!
-    lazy var userID: String? = nil
-    lazy var chatId: String? = nil
+    
+    lazy var chat: Chat? = nil
     
     private lazy var viewModel = ChatsViewModel()
     private var tableView = ChatTableView()
@@ -89,7 +89,7 @@ class ChatsViewController: BaseViewController {
     }
     
     deinit {
-        if let chatId = chatId {
+        if let chatId = chat?.chatId {
             viewModel.stopObservingMessages(chatId: chatId)
         }
         NotificationCenter.default.removeObserver(self)
@@ -102,14 +102,14 @@ class ChatsViewController: BaseViewController {
     @objc func tappedSentButton() {
         
         guard let text = messageTextView.text,
-              let userID = userID, !text.isEmpty,
-              let chatId = chatId, !chatId.isEmpty
+              let userId = chat?.user.uid, !userId.isEmpty,
+              let chatId = chat?.chatId, !chatId.isEmpty
         else {
             self.showError(message: "please enter a message")
             return
         }
-        
-        viewModel.sendMessage(chatId: chatId, text: text, senderId: userID)
+        guard let chatId = chat?.chatId, let senderId = chat?.user.uid else { return }
+        viewModel.sendMessage(chatId: chatId, text: text, senderId:senderId)
         messageTextView.text = ""
     }
     
@@ -150,8 +150,8 @@ class ChatsViewController: BaseViewController {
     
     private func getMetods() {
         
-        guard let userID = userID, let chatId = chatId  else { return }
-        viewModel.getUser(with: userID)
+        guard let chatId = chat?.chatId, let senderId = chat?.user.uid else { return }
+        viewModel.getUser(with: senderId)
         
         viewModel.fetchOldMessage(with: chatId)
         viewModel.observeMessages(with: chatId)

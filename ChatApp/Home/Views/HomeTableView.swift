@@ -9,7 +9,7 @@ import PureLayout
 
 
 protocol HomeTableViewDelegate: AnyObject {
-    func cellDidSelect(userId: String)
+    func cellDidSelect(chat: Chat)
 }
 
 class HomeTableView: UIView {
@@ -82,7 +82,7 @@ extension HomeTableView: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        delegate?.cellDidSelect(userId: chats[indexPath.row].user.uid)
+        delegate?.cellDidSelect(chat: chats[indexPath.row])
     }
 }
 

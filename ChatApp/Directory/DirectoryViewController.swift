@@ -7,7 +7,7 @@
 import PureLayout
 
 protocol DirectoryViewControllerDelegate: AnyObject {
-    func teppedNewConversation(userID: String, chatRoomId: String)
+    func tappedNewConversation(chat: Chat)
 }
 
 class DirectoryViewController: BaseViewController{
@@ -77,11 +77,10 @@ extension DirectoryViewController: UISearchBarDelegate{
 
 extension DirectoryViewController: DirectoryViewModelDelegate {
     
-    func chatRoomIdCreated(chatRoomId: String) {
-           guard let selectedUser = selectedUser else { return }
-           delegate?.teppedNewConversation(userID: selectedUser.uid, chatRoomId: chatRoomId)
-           dismissSelf()
-       }
+    func chatCreated(chat: Chat) {
+        delegate?.tappedNewConversation(chat: chat)
+        dismissSelf()
+    }
     
     func usersFetched(users: [User]) {
         self.users = users

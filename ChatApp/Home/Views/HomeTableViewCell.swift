@@ -45,7 +45,7 @@ class HomeTableViewCell: UITableViewCell {
         var lbl = UILabel()
         lbl.textColor = Colors.gray
         lbl.textAlignment = .right
-        lbl.font = AppFont.medium.font(size: 8)
+        lbl.font = AppFont.medium.font(size: 10)
         lbl.translatesAutoresizingMaskIntoConstraints = false
         return lbl
     }()
